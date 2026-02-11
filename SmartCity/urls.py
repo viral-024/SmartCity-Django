@@ -1,5 +1,5 @@
 """
-URL configuration for SmartCity project.
+URL configuration for smartcity project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/6.0/topics/http/urls/
@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounts.urls')),
+    path('accounts/', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('', RedirectView.as_view(url='/dashboard/')),  # Redirect root to dashboard
 ]

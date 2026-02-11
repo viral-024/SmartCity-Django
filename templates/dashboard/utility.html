@@ -1,0 +1,43 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Utility Dashboard - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold"><i class="fas fa-tools me-2"></i>{{ welcome_message }}</h2>
+        <p class="text-muted">Manage and track utility complaints efficiently</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    {% for stat in stats %}
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card {{ stat.color }}">
+            <i class="fas fa-{{ stat.icon }} stat-icon"></i>
+            <div class="stat-number">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tasks me-2"></i>Utility Management System
+            </div>
+            <div class="card-body text-center py-5">
+                <i class="fas fa-wrench fa-4x text-warning mb-4"></i>
+                <h4 class="mb-3">Utility Complaint Management</h4>
+                <p class="text-muted mb-4">Track, assign, and resolve utility complaints from citizens across the city.</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Features Coming:</strong> Complaint assignment, worker management, status tracking, and escalation workflows.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

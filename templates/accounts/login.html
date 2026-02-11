@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - SmartCity EMS{% endblock %}
+
+{% block content %}
+<h4 class="text-center mb-3"><i class="fas fa-sign-in-alt me-2"></i>Login to SmartCity EMS</h4>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>Login Instructions:</strong><br>
+    • <strong>Citizens:</strong> Use your username and password (no access code)<br>
+    • <strong>Staff:</strong> Enter your access code (Gov: 1111, Utility: 2222, Emergency: 3333, Driver: 4444)
+</div>
+
+<!-- Staff Credentials Table - CENTERED -->
+<div class="d-flex justify-content-center mb-4">
+    <div class="table-responsive" style="max-width: 500px;">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>gov_officer</td>
+                    <td>gov123</td>
+                </tr>
+                <tr>
+                    <td>utility_officer</td>
+                    <td>utility123</td>
+                </tr>
+                <tr>
+                    <td>emergency_op</td>
+                    <td>emergency123</td>
+                </tr>
+                <tr>
+                    <td>driver1</td>
+                    <td>driver123</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<form method="post" class="w-100" style="max-width: 500px; margin: 0 auto;">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        <label class="form-label"><i class="fas fa-user me-2"></i>Username</label>
+        <input type="text" name="username" class="form-control" 
+               placeholder="Enter your username" value="{{ username }}" required>
+    </div>
+    
+    <div class="mb-3">
+        <label class="form-label"><i class="fas fa-lock me-2"></i>Password</label>
+        <input type="password" name="password" class="form-control" 
+               placeholder="Enter your password" required>
+    </div>
+    
+    <div class="mb-3">
+        <label class="form-label"><i class="fas fa-id-badge me-2"></i>Select Your Role</label>
+        <select name="role" class="form-control" id="role-select" required>
+            <option value="">-- Select Your Role --</option>
+            <option value="citizen" {% if role == 'citizen' %}selected{% endif %}>
+                🏠 Citizen
+            </option>
+            <option value="government_authority" {% if role == 'government_authority' %}selected{% endif %}>
+                👨‍💼 Government Authority
+            </option>
+            <option value="utility_officer" {% if role == 'utility_officer' %}selected{% endif %}>
+                🔧 Utility Officer
+            </option>
+            <option value="emergency_operator" {% if role == 'emergency_operator' %}selected{% endif %}>
+                🚨 Emergency Operator
+            </option>
+            <option value="vehicle_driver" {% if role == 'vehicle_driver' %}selected{% endif %}>
+                🚑 Vehicle Driver
+            </option>
+        </select>
+    </div>
+    
+    <div class="mb-4" id="access-code-field" style="display:none;">
+        <label class="form-label"><i class="fas fa-key me-2"></i>Access Code</label>
+        <input type="password" name="access_code" class="form-control" 
+               placeholder="Enter access code">
+        <small class="text-muted">Gov: 1111 | Utility: 2222 | Emergency: 3333 | Driver: 4444</small>
+    </div>
+    
+    <button type="submit" class="btn btn-primary mb-3 w-100">
+        <i class="fas fa-sign-in-alt me-2"></i>Login
+    </button>
+</form>
+
+<div class="text-center mt-3 pt-3 border-top" style="max-width: 500px; margin: 0 auto;">
+    <p class="text-muted mb-2">New citizen? Create a free account!</p>
+    <a href="{% url 'accounts:register' %}" class="btn btn-outline-success w-100">
+        <i class="fas fa-user-plus me-1"></i>Register as Citizen
+    </a>
+</div>
+
+<script>
+    // Show/hide access code field based on role selection
+    document.getElementById('role-select').addEventListener('change', function() {
+        const accessCodeField = document.getElementById('access-code-field');
+        if (this.value === 'citizen') {
+            accessCodeField.style.display = 'none';
+            accessCodeField.querySelector('input').value = '';
+        } else {
+            accessCodeField.style.display = 'block';
+        }
+    });
+    
+    // Initialize based on saved role
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('role-select');
+        if (roleSelect.value !== 'citizen' && roleSelect.value !== '') {
+            document.getElementById('access-code-field').style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}
