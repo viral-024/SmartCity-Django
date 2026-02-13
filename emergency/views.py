@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import EmergencyRequest, EmergencyType
-from .forms import EmergencyRequestForm
+from .models import EmergencyRequest, EmergencyType, EmergencyVehicle, DispatchRecord  # ← Fixed imports
+from .forms import EmergencyRequestForm, EmergencyVehicleForm  # ← Fixed imports
 
 @login_required
 def citizen_emergency_request(request):
@@ -82,4 +82,146 @@ def emergency_detail(request, request_id):
     
     return render(request, 'emergency/emergency_detail.html', {
         'emergency': emergency,
-    })      
+    })
+
+
+@login_required
+def operator_dashboard(request):
+    """Emergency operator dashboard - view pending emergencies"""
+    if request.user.role != 'emergency_operator':
+        messages.error(request, 'Access denied. Only emergency operators can access this page.')
+        return redirect('dashboard:dashboard')
+    
+    # Get pending emergencies
+    pending_emergencies = EmergencyRequest.objects.filter(status='pending').order_by('-created_at')
+    
+    # Get active dispatches
+    active_dispatches = DispatchRecord.objects.filter(
+        status__in=['assigned', 'en_route', 'on_scene']
+    ).select_related('emergency_request', 'vehicle').order_by('-assigned_at')
+    
+    # Get statistics
+    total_pending = pending_emergencies.count()
+    total_active = active_dispatches.count()
+    total_vehicles = EmergencyVehicle.objects.count()
+    available_vehicles = EmergencyVehicle.objects.filter(is_available=True).count()
+    
+    context = {
+        'pending_emergencies': pending_emergencies,
+        'active_dispatches': active_dispatches,
+        'total_pending': total_pending,
+        'total_active': total_active,
+        'total_vehicles': total_vehicles,
+        'available_vehicles': available_vehicles,
+    }
+    
+    return render(request, 'emergency/operator_dashboard.html', context)
+
+
+@login_required
+def assign_vehicle(request, emergency_id):
+    """Assign a vehicle to an emergency"""
+    if request.user.role != 'emergency_operator':
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard:dashboard')
+    
+    emergency = EmergencyRequest.objects.get(id=emergency_id)
+    
+    # Get available vehicles
+    available_vehicles = EmergencyVehicle.objects.filter(is_available=True)
+    
+    if request.method == 'POST':
+        vehicle_id = request.POST.get('vehicle_id')
+        vehicle = EmergencyVehicle.objects.get(id=vehicle_id)
+        
+        # Create dispatch record
+        dispatch = DispatchRecord.objects.create(
+            emergency_request=emergency,
+            vehicle=vehicle,
+            assigned_by=request.user,
+            status='assigned'
+        )
+        
+        # Update emergency status
+        emergency.status = 'assigned'
+        emergency.save()
+        
+        # Mark vehicle as unavailable
+        vehicle.is_available = False
+        vehicle.save()
+        
+        messages.success(request, f'Vehicle {vehicle.vehicle_number} assigned successfully!')
+        return redirect('emergency:operator_dashboard')
+    
+    return render(request, 'emergency/assign_vehicle.html', {
+        'emergency': emergency,
+        'available_vehicles': available_vehicles,
+    })
+
+
+@login_required
+def update_dispatch_status(request, dispatch_id):
+    """Update dispatch status (en route, on scene, completed)"""
+    if request.user.role != 'emergency_operator':
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard:dashboard')
+    
+    dispatch = DispatchRecord.objects.get(id=dispatch_id)
+    
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        dispatch.status = status
+        dispatch.save()
+        
+        # Update emergency request status
+        dispatch.emergency_request.status = status
+        dispatch.emergency_request.save()
+        
+        # If completed, mark vehicle as available
+        if status == 'completed':
+            dispatch.vehicle.is_available = True
+            dispatch.vehicle.save()
+        
+        messages.success(request, 'Dispatch status updated successfully!')
+        return redirect('emergency:operator_dashboard')
+    
+    return render(request, 'emergency/update_dispatch_status.html', {
+        'dispatch': dispatch,
+    })
+
+
+@login_required
+def manage_vehicles(request):
+    """Manage emergency vehicles (add, edit, delete)"""
+    if request.user.role != 'emergency_operator':
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard:dashboard')
+    
+    vehicles = EmergencyVehicle.objects.all().order_by('vehicle_type', 'vehicle_number')
+    
+    if request.method == 'POST':
+        form = EmergencyVehicleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Vehicle added successfully!')
+            return redirect('emergency:manage_vehicles')
+    else:
+        form = EmergencyVehicleForm()
+    
+    return render(request, 'emergency/manage_vehicles.html', {
+        'vehicles': vehicles,
+        'form': form,
+    })
+
+
+@login_required
+def delete_vehicle(request, vehicle_id):
+    """Delete an emergency vehicle"""
+    if request.user.role != 'emergency_operator':
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard:dashboard')
+    
+    vehicle = EmergencyVehicle.objects.get(id=vehicle_id)
+    vehicle.delete()
+    messages.success(request, 'Vehicle deleted successfully!')
+    return redirect('emergency:manage_vehicles')

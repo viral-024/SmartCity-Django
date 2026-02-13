@@ -1,0 +1,131 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Update Dispatch Status - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-sync-alt me-2"></i>Update Dispatch Status</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:emergency' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'emergency:operator_dashboard' %}">Active Dispatches</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Update Status</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-truck-medical me-2"></i>Dispatch Information
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Dispatch ID:</strong> #{{ dispatch.id }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Emergency ID:</strong> 
+                    <a href="{% url 'emergency:detail' dispatch.emergency_request.id %}">
+                        #{{ dispatch.emergency_request.id }}
+                    </a>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Vehicle:</strong> {{ dispatch.vehicle.vehicle_number }}
+                    ({{ dispatch.vehicle.get_vehicle_type_display }})
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Driver:</strong> {{ dispatch.vehicle.driver_name }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Current Status:</strong>
+                    {% if dispatch.status == 'assigned' %}
+                    <span class="badge bg-primary fs-6">Assigned</span>
+                    {% elif dispatch.status == 'en_route' %}
+                    <span class="badge bg-info fs-6">En Route</span>
+                    {% elif dispatch.status == 'on_scene' %}
+                    <span class="badge bg-warning fs-6">On Scene</span>
+                    {% else %}
+                    <span class="badge bg-success fs-6">Completed</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Assigned At:</strong> {{ dispatch.assigned_at|date:"M d, Y" }} 
+                    at {{ dispatch.assigned_at|time:"h:i A" }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-edit me-2"></i>Update Status
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label"><strong>Select New Status:</strong></label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="status" id="status_assigned" 
+                                   value="assigned" {% if dispatch.status == 'assigned' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_assigned">
+                                <span class="badge bg-primary">Assigned</span>
+                                <br><small class="text-muted">Vehicle assigned but not yet dispatched</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="status" id="status_en_route" 
+                                   value="en_route" {% if dispatch.status == 'en_route' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_en_route">
+                                <span class="badge bg-info">En Route</span>
+                                <br><small class="text-muted">Vehicle is traveling to emergency location</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="status" id="status_on_scene" 
+                                   value="on_scene" {% if dispatch.status == 'on_scene' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_on_scene">
+                                <span class="badge bg-warning">On Scene</span>
+                                <br><small class="text-muted">Vehicle has arrived at emergency location</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status" id="status_completed" 
+                                   value="completed" {% if dispatch.status == 'completed' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_completed">
+                                <span class="badge bg-success">Completed</span>
+                                <br><small class="text-muted">Emergency has been resolved, vehicle returning</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> When you mark a dispatch as "Completed", the vehicle will automatically become available for new assignments.
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Status
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

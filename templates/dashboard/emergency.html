@@ -6,7 +6,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <h2><i class="fas fa-ambulance me-2"></i>Emergency Operations Dashboard</h2>
-        <p class="text-muted">Monitor and manage emergency response</p>
+        <p class="text-muted">Monitor and manage emergency response operations</p>
     </div>
 </div>
 
@@ -42,7 +42,7 @@
 </div>
 
 <div class="row">
-    <div class="col-12 mb-4">
+    <div class="col-lg-8 mb-4">
         <div class="card">
             <div class="card-header">
                 <i class="fas fa-siren me-2"></i>Emergency Response Management
@@ -55,6 +55,28 @@
                     <li>Real-time GPS tracking</li>
                     <li>Route optimization</li>
                 </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cogs me-2"></i>Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-primary w-100 py-3">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'emergency:manage_vehicles' %}" class="btn btn-success w-100 py-3">
+                            <i class="fas fa-car me-2"></i>Manage Vehicles
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

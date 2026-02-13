@@ -69,3 +69,46 @@ class EmergencyRequest(models.Model):
             self.resolved_at = timezone.now()
         
         super().save(*args, **kwargs)
+
+
+class EmergencyVehicle(models.Model):
+    """Emergency vehicles (ambulance, fire truck, police car, etc.)"""
+    
+    VEHICLE_TYPE_CHOICES = [
+        ('ambulance', 'Ambulance'),
+        ('fire_truck', 'Fire Truck'),
+        ('police_car', 'Police Car'),
+        ('rescue_vehicle', 'Rescue Vehicle'),
+    ]
+    
+    vehicle_type = models.CharField(max_length=50, choices=VEHICLE_TYPE_CHOICES)
+    vehicle_number = models.CharField(max_length=20, unique=True)
+    driver_name = models.CharField(max_length=100)
+    driver_contact = models.CharField(max_length=15)
+    is_available = models.BooleanField(default=True)
+    current_location = models.CharField(max_length=200, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.get_vehicle_type_display()} - {self.vehicle_number}"
+    
+    class Meta:
+        ordering = ['vehicle_type', 'vehicle_number']
+
+
+class DispatchRecord(models.Model):
+    """Records of emergency dispatches"""
+    
+    emergency_request = models.ForeignKey(EmergencyRequest, on_delete=models.CASCADE, related_name='dispatches')
+    vehicle = models.ForeignKey(EmergencyVehicle, on_delete=models.PROTECT)
+    assigned_by = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='dispatches_made')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ('assigned', 'Assigned'),
+        ('en_route', 'En Route'),
+        ('on_scene', 'On Scene'),
+        ('completed', 'Completed'),
+    ], default='assigned')
+    
+    def __str__(self):
+        return f"Dispatch #{self.id} for Emergency #{self.emergency_request.id}"

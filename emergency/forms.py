@@ -1,5 +1,5 @@
 from django import forms
-from .models import EmergencyRequest, EmergencyType
+from .models import EmergencyRequest, EmergencyType, EmergencyVehicle  # ← Added EmergencyVehicle import
 
 class EmergencyRequestForm(forms.ModelForm):
     """Form for citizens to submit emergency requests"""
@@ -62,3 +62,18 @@ class EmergencyRequestForm(forms.ModelForm):
             self.add_error('address', 'Address is required.')
         
         return cleaned_data
+
+
+class EmergencyVehicleForm(forms.ModelForm):
+    """Form for managing emergency vehicles"""
+    
+    class Meta:
+        model = EmergencyVehicle  # ← Now properly imported
+        fields = ['vehicle_type', 'vehicle_number', 'driver_name', 'driver_contact', 'current_location']
+        widgets = {
+            'vehicle_type': forms.Select(attrs={'class': 'form-control'}),
+            'vehicle_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'driver_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'driver_contact': forms.TextInput(attrs={'class': 'form-control'}),
+            'current_location': forms.TextInput(attrs={'class': 'form-control'}),
+        }

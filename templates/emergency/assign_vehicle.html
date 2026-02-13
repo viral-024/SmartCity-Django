@@ -1,0 +1,159 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Assign Vehicle - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-truck-medical me-2"></i>Assign Vehicle to Emergency</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:emergency' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Assign Vehicle</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-file-alt me-2"></i>Emergency Details
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Emergency ID:</strong> #{{ emergency.id }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Type:</strong> 
+                        <i class="fas fa-{{ emergency.emergency_type.icon }} me-1"></i>
+                        {{ emergency.emergency_type.name }}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Priority:</strong>
+                    {% if emergency.priority == 'critical' %}
+                    <span class="badge bg-danger fs-6">Critical</span>
+                    {% elif emergency.priority == 'high' %}
+                    <span class="badge bg-warning fs-6">High</span>
+                    {% elif emergency.priority == 'medium' %}
+                    <span class="badge bg-info fs-6">Medium</span>
+                    {% else %}
+                    <span class="badge bg-success fs-6">Low</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Location:</strong><br>
+                    {{ emergency.address }}<br>
+                    {% if emergency.landmark %}
+                    <small class="text-muted"><i class="fas fa-thumbtack me-1"></i>{{ emergency.landmark }}</small>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Contact:</strong> {{ emergency.contact_number }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Description:</strong><br>
+                    <p class="border p-3 rounded">{{ emergency.description }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-car me-2"></i>Available Vehicles
+            </div>
+            <div class="card-body">
+                {% if available_vehicles %}
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Vehicle Number</th>
+                                    <th>Type</th>
+                                    <th>Driver</th>
+                                    <th>Contact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vehicle in available_vehicles %}
+                                <tr>
+                                    <td>
+                                        <input type="radio" name="vehicle_id" value="{{ vehicle.id }}" required>
+                                    </td>
+                                    <td><strong>{{ vehicle.vehicle_number }}</strong></td>
+                                    <td>{{ vehicle.get_vehicle_type_display }}</td>
+                                    <td>{{ vehicle.driver_name }}</td>
+                                    <td>{{ vehicle.driver_contact }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i>Assign Selected Vehicle
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>No Available Vehicles!</strong><br>
+                    All vehicles are currently dispatched. Please wait for a vehicle to become available or add new vehicles.
+                </div>
+                <a href="{% url 'emergency:manage_vehicles' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add New Vehicle
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Assignment Guidelines
+            </div>
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Vehicle Selection Criteria:</h6>
+                <ul class="small">
+                    <li><i class="fas fa-check text-success me-2"></i>Choose nearest available vehicle</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Match vehicle type to emergency</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Consider driver experience</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Check vehicle condition</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="fw-bold mb-3">Priority Guidelines:</h6>
+                <ul class="small">
+                    <li><span class="badge bg-danger me-2">Critical</span>Life-threatening situations</li>
+                    <li><span class="badge bg-warning me-2">High</span>Serious injuries/property damage</li>
+                    <li><span class="badge bg-info me-2">Medium</span>Minor emergencies</li>
+                    <li><span class="badge bg-success me-2">Low</span>Non-urgent situations</li>
+                </ul>
+                
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> After assignment, update dispatch status as vehicle progresses (En Route → On Scene → Completed).
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

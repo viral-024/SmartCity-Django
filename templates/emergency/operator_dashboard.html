@@ -1,0 +1,211 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Emergency Operator Dashboard - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-ambulance me-2"></i>Emergency Operations Dashboard</h2>
+        <p class="text-muted">Monitor and manage emergency response operations</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card danger">
+            <i class="fas fa-bell fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_pending }}</div>
+            <div class="stat-label">Pending Emergencies</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card info">
+            <i class="fas fa-truck-medical fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_active }}</div>
+            <div class="stat-label">Active Dispatches</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card success">
+            <i class="fas fa-car fa-2x mb-3"></i>
+            <div class="stat-number">{{ available_vehicles }}</div>
+            <div class="stat-label">Available Vehicles</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card primary">
+            <i class="fas fa-car-alt fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_vehicles }}</div>
+            <div class="stat-label">Total Vehicles</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-exclamation-triangle me-2"></i>Pending Emergencies</span>
+                <span class="badge bg-danger">{{ total_pending }} Pending</span>
+            </div>
+            <div class="card-body">
+                {% if pending_emergencies %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Priority</th>
+                                <th>Location</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emergency in pending_emergencies %}
+                            <tr>
+                                <td><strong>#{{ emergency.id }}</strong></td>
+                                <td>
+                                    <i class="fas fa-{{ emergency.emergency_type.icon }} me-1"></i>
+                                    {{ emergency.emergency_type.name }}
+                                </td>
+                                <td>
+                                    {% if emergency.priority == 'critical' %}
+                                    <span class="badge bg-danger">Critical</span>
+                                    {% elif emergency.priority == 'high' %}
+                                    <span class="badge bg-warning">High</span>
+                                    {% elif emergency.priority == 'medium' %}
+                                    <span class="badge bg-info">Medium</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ emergency.address|truncatewords:5 }}</td>
+                                <td>{{ emergency.created_at|date:"h:i A" }}</td>
+                                <td>
+                                    <a href="{% url 'emergency:assign_vehicle' emergency.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-truck-medical me-1"></i>Assign Vehicle
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h5 class="text-success">No Pending Emergencies</h5>
+                    <p class="text-muted">All emergencies have been assigned or resolved.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-cogs me-2"></i>Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'emergency:manage_vehicles' %}" class="btn btn-primary">
+                        <i class="fas fa-car me-1"></i>Manage Vehicles
+                    </a>
+                    <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-info">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>System Status
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>System Status:</span>
+                        <span class="badge bg-success">Operational</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Last Updated:</span>
+                        <span>{{ request.current_time|date:"h:i A" }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-truck-medical me-2"></i>Active Dispatches</span>
+                <span class="badge bg-info">{{ total_active }} Active</span>
+            </div>
+            <div class="card-body">
+                {% if active_dispatches %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Dispatch ID</th>
+                                <th>Emergency ID</th>
+                                <th>Vehicle</th>
+                                <th>Driver</th>
+                                <th>Status</th>
+                                <th>Assigned</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dispatch in active_dispatches %}
+                            <tr>
+                                <td><strong>#{{ dispatch.id }}</strong></td>
+                                <td><a href="{% url 'emergency:detail' dispatch.emergency_request.id %}">#{{ dispatch.emergency_request.id }}</a></td>
+                                <td>
+                                    <i class="fas fa-car me-1"></i>
+                                    {{ dispatch.vehicle.vehicle_number }}
+                                    <br>
+                                    <small class="text-muted">{{ dispatch.vehicle.get_vehicle_type_display }}</small>
+                                </td>
+                                <td>{{ dispatch.vehicle.driver_name }}</td>
+                                <td>
+                                    {% if dispatch.status == 'assigned' %}
+                                    <span class="badge bg-primary">Assigned</span>
+                                    {% elif dispatch.status == 'en_route' %}
+                                    <span class="badge bg-info">En Route</span>
+                                    {% elif dispatch.status == 'on_scene' %}
+                                    <span class="badge bg-warning">On Scene</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ dispatch.assigned_at|date:"h:i A" }}</td>
+                                <td>
+                                    <a href="{% url 'emergency:update_dispatch_status' dispatch.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit me-1"></i>Update
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-truck-medical fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Active Dispatches</h5>
+                    <p class="text-muted">No vehicles are currently dispatched.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

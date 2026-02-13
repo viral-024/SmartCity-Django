@@ -1,0 +1,123 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Manage Vehicles - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-car me-2"></i>Emergency Vehicle Management</h2>
+        <p class="text-muted">Add, edit, and manage emergency vehicles</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-plus me-2"></i>Add New Vehicle
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Vehicle Type *</label>
+                        {{ form.vehicle_type }}
+                        {% if form.vehicle_type.errors %}
+                            <div class="text-danger small">{{ form.vehicle_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Vehicle Number *</label>
+                        {{ form.vehicle_number }}
+                        {% if form.vehicle_number.errors %}
+                            <div class="text-danger small">{{ form.vehicle_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Driver Name *</label>
+                        {{ form.driver_name }}
+                        {% if form.driver_name.errors %}
+                            <div class="text-danger small">{{ form.driver_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Driver Contact *</label>
+                        {{ form.driver_contact }}
+                        {% if form.driver_contact.errors %}
+                            <div class="text-danger small">{{ form.driver_contact.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Current Location (Optional)</label>
+                        {{ form.current_location }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-plus me-1"></i>Add Vehicle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-list me-2"></i>Vehicle List</span>
+                <span class="badge bg-primary">{{ vehicles.count }} Total</span>
+            </div>
+            <div class="card-body">
+                {% if vehicles %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Vehicle #</th>
+                                <th>Type</th>
+                                <th>Driver</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vehicle in vehicles %}
+                            <tr>
+                                <td><strong>{{ vehicle.vehicle_number }}</strong></td>
+                                <td>{{ vehicle.get_vehicle_type_display }}</td>
+                                <td>{{ vehicle.driver_name }}</td>
+                                <td>
+                                    {% if vehicle.is_available %}
+                                    <span class="badge bg-success">Available</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Dispatched</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'emergency:delete_vehicle' vehicle.id %}" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Are you sure you want to delete this vehicle?');">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-car fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Vehicles Added</h5>
+                    <p class="text-muted">Add your first emergency vehicle to get started.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
