@@ -1,0 +1,200 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Report Emergency - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Report Emergency</h2>
+        <p class="text-muted">Submit an emergency request for immediate assistance</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-alt me-2"></i>Emergency Details
+            </div>
+            <div class="card-body">
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Please correct the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <form method="post" id="emergency-form">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-ambulance me-2"></i>Type of Emergency *</label>
+                            {{ form.emergency_type }}
+                            {% if form.emergency_type.errors %}
+                                <div class="text-danger small">{{ form.emergency_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-exclamation-circle me-2"></i>Priority *</label>
+                            {{ form.priority }}
+                            {% if form.priority.errors %}
+                                <div class="text-danger small">{{ form.priority.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-map-marker-alt me-2"></i>Address *</label>
+                        <p class="text-muted small">Provide complete address with street name, area, and city</p>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <div class="text-danger small">{{ form.address.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-thumbtack me-2"></i>Landmark (Optional)</label>
+                        <p class="text-muted small">Nearby landmark to help locate the place</p>
+                        {{ form.landmark }}
+                        {% if form.landmark.errors %}
+                            <div class="text-danger small">{{ form.landmark.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <i class="fas fa-location-arrow me-2"></i>Location Detection (Optional)
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                We can automatically detect your location for faster response. Click the button below to enable location access.
+                            </p>
+                            <button type="button" class="btn btn-info" onclick="getLocation()">
+                                <i class="fas fa-location-arrow me-1"></i>Detect My Location
+                            </button>
+                            <p class="text-muted small mt-2 mb-0">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Location is optional. Your address is sufficient for emergency response.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-phone me-2"></i>Contact Number *</label>
+                        {{ form.contact_number }}
+                        {% if form.contact_number.errors %}
+                            <div class="text-danger small">{{ form.contact_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-info-circle me-2"></i>Description *</label>
+                        <p class="text-muted small">Describe the emergency situation in detail</p>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label"><i class="fas fa-plus-circle me-2"></i>Additional Information (Optional)</label>
+                        <p class="text-muted small">Any other relevant details</p>
+                        {{ form.additional_info }}
+                    </div>
+                    
+                    {{ form.location_lat }}
+                    {{ form.location_lng }}
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'dashboard:citizen' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Submit Emergency Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-info-circle me-2"></i>Emergency Guidelines
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>For Life-Threatening Emergencies:</strong><br>
+                    Call 100 (Police) / 101 (Fire) / 102 (Ambulance) immediately!
+                </div>
+                
+                <h6 class="fw-bold mb-3">When to use this system:</h6>
+                <ul class="small">
+                    <li><i class="fas fa-check text-success me-2"></i>Non-critical medical emergencies</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Minor accidents</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Property damage</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Utility emergencies</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Public safety concerns</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="fw-bold mb-2">Response Times:</h6>
+                <ul class="small">
+                    <li><span class="badge bg-danger">Critical</span>: 5-10 minutes</li>
+                    <li><span class="badge bg-warning">High</span>: 10-20 minutes</li>
+                    <li><span class="badge bg-info">Medium</span>: 20-40 minutes</li>
+                    <li><span class="badge bg-success">Low</span>: 40-60 minutes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Get user location
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                document.getElementById('id_location_lat').value = position.coords.latitude;
+                document.getElementById('id_location_lng').value = position.coords.longitude;
+                alert('Location detected successfully!\nLat: ' + position.coords.latitude + '\nLng: ' + position.coords.longitude);
+            },
+            function(error) {
+                let errorMessage = 'Unable to detect location. ';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage += 'User denied location access.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage += 'Location information is unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage += 'Location request timed out.';
+                        break;
+                    default:
+                        errorMessage += 'An unknown error occurred.';
+                }
+                alert(errorMessage + '\n\nDon\'t worry! Your address is sufficient for emergency response.');
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+</script>
+{% endblock %}

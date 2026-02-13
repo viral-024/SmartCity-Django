@@ -1,0 +1,149 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Emergency Request #{{ emergency.id }} - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-file-alt me-2"></i>Emergency Request #{{ emergency.id }}</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:citizen' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'emergency:my_requests' %}">My Requests</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Request #{{ emergency.id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Request Information
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-ambulance me-2"></i>Type:</strong><br>
+                        <i class="fas fa-{{ emergency.emergency_type.icon }} me-1"></i>
+                        {{ emergency.emergency_type.name }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-exclamation-circle me-2"></i>Priority:</strong><br>
+                        {% if emergency.priority == 'critical' %}
+                        <span class="badge bg-danger fs-6">Critical</span>
+                        {% elif emergency.priority == 'high' %}
+                        <span class="badge bg-warning fs-6">High</span>
+                        {% elif emergency.priority == 'medium' %}
+                        <span class="badge bg-info fs-6">Medium</span>
+                        {% else %}
+                        <span class="badge bg-success fs-6">Low</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="fas fa-map-marker-alt me-2"></i>Location:</strong><br>
+                    {{ emergency.address }}<br>
+                    {% if emergency.landmark %}
+                    <small class="text-muted"><i class="fas fa-thumbtack me-1"></i>{{ emergency.landmark }}</small>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="fas fa-phone me-2"></i>Contact Number:</strong><br>
+                    {{ emergency.contact_number }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="fas fa-info-circle me-2"></i>Description:</strong><br>
+                    <p class="border p-3 rounded">{{ emergency.description }}</p>
+                </div>
+                
+                {% if emergency.additional_info %}
+                <div class="mb-3">
+                    <strong><i class="fas fa-plus-circle me-2"></i>Additional Information:</strong><br>
+                    <p class="border p-3 rounded">{{ emergency.additional_info }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-clock me-2"></i>Timeline
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Submitted:</strong> {{ emergency.created_at|date:"M d, Y" }} at {{ emergency.created_at|time:"h:i A" }}
+                    </li>
+                    {% if emergency.assigned_at %}
+                    <li class="list-group-item">
+                        <strong>Assigned:</strong> {{ emergency.assigned_at|date:"M d, Y" }} at {{ emergency.assigned_at|time:"h:i A" }}
+                    </li>
+                    {% endif %}
+                    {% if emergency.resolved_at %}
+                    <li class="list-group-item">
+                        <strong>Resolved:</strong> {{ emergency.resolved_at|date:"M d, Y" }} at {{ emergency.resolved_at|time:"h:i A" }}
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-{{ emergency.status|slice:':1' }} text-white">
+                <i class="fas fa-flag me-2"></i>Status
+            </div>
+            <div class="card-body text-center">
+                <h3>
+                    {% if emergency.status == 'pending' %}
+                    <span class="badge bg-secondary fs-3">Pending</span>
+                    {% elif emergency.status == 'assigned' %}
+                    <span class="badge bg-primary fs-3">Assigned</span>
+                    {% elif emergency.status == 'en_route' %}
+                    <span class="badge bg-info fs-3">En Route</span>
+                    {% elif emergency.status == 'on_scene' %}
+                    <span class="badge bg-warning fs-3">On Scene</span>
+                    {% elif emergency.status == 'resolved' %}
+                    <span class="badge bg-success fs-3">Resolved</span>
+                    {% else %}
+                    <span class="badge bg-danger fs-3">Cancelled</span>
+                    {% endif %}
+                </h3>
+                <p class="mt-3 text-muted">Current status of your emergency request</p>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-map-marked-alt me-2"></i>Location on Map
+            </div>
+            <div class="card-body text-center">
+                <div style="background-color: #f0f0f0; border: 2px dashed #ccc; height: 200px; display: flex; align-items: center; justify-content: center;">
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-map fa-3x mb-2"></i><br>
+                        Map view coming soon
+                    </p>
+                </div>
+                <p class="mt-2 text-muted small">
+                    Coordinates: {{ emergency.location_lat }}, {{ emergency.location_lng }}
+                </p>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2 mt-4">
+            <a href="{% url 'emergency:my_requests' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Requests
+            </a>
+            <a href="{% url 'emergency:report_emergency' %}" class="btn btn-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i>Report New Emergency
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,37 +5,56 @@
 {% block dashboard_content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h2 class="fw-bold"><i class="fas fa-truck-medical me-2"></i>{{ welcome_message }}</h2>
+        <h2><i class="fas fa-truck-medical me-2"></i>Driver Operations Dashboard</h2>
         <p class="text-muted">Emergency vehicle operations and task management</p>
     </div>
 </div>
 
 <div class="row g-4 mb-4">
-    {% for stat in stats %}
     <div class="col-md-6 col-lg-3">
-        <div class="stat-card {{ stat.color }}">
-            <i class="fas fa-{{ stat.icon }} stat-icon"></i>
-            <div class="stat-number">{{ stat.value }}</div>
-            <div class="stat-label">{{ stat.label }}</div>
+        <div class="stat-card primary">
+            <i class="fas fa-map-marked-alt fa-2x mb-3"></i>
+            <div class="stat-number">{{ current_assignment }}</div>
+            <div class="stat-label">Current Assignment</div>
         </div>
     </div>
-    {% endfor %}
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card success">
+            <i class="fas fa-check-circle fa-2x mb-3"></i>
+            <div class="stat-number">{{ status }}</div>
+            <div class="stat-label">Status</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card info">
+            <i class="fas fa-tasks fa-2x mb-3"></i>
+            <div class="stat-number">{{ completed_today }}</div>
+            <div class="stat-label">Completed Today</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card warning">
+            <i class="fas fa-road fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_distance }}</div>
+            <div class="stat-label">Total Distance</div>
+        </div>
+    </div>
 </div>
 
 <div class="row">
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-map-marked-alt me-2"></i>Vehicle Operations
+                <i class="fas fa-steering-wheel me-2"></i>Vehicle Operations
             </div>
-            <div class="card-body text-center py-5">
-                <i class="fas fa-steering-wheel fa-4x text-primary mb-4"></i>
-                <h4 class="mb-3">Driver Task Management</h4>
-                <p class="text-muted mb-4">View assigned emergencies, update status, and report road conditions.</p>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Features Coming:</strong> Emergency assignments, GPS navigation, status updates, and blockage reporting.
-                </div>
+            <div class="card-body">
+                <p class="text-muted">Features coming soon:</p>
+                <ul>
+                    <li>Emergency assignments</li>
+                    <li>GPS navigation</li>
+                    <li>Status updates</li>
+                    <li>Blockage reporting</li>
+                </ul>
             </div>
         </div>
     </div>

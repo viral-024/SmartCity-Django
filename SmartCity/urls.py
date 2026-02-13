@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),
-    path('', RedirectView.as_view(url='/dashboard/')),  # Redirect root to dashboard
+    path('emergency/', include('emergency.urls')),  # ← Add this line
+    path('', RedirectView.as_view(url='/dashboard/')),
 ]

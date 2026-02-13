@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from accounts.models import User
 
 @login_required
 def dashboard_redirect(request):
@@ -22,38 +24,42 @@ def dashboard_redirect(request):
 
 @login_required
 def citizen_dashboard(request):
-    """Citizen dashboard"""
+    """Citizen dashboard - show their requests"""
     if request.user.role != 'citizen':
         return redirect('dashboard:dashboard')
     
+    # Get user's emergency requests and complaints (will add later)
     context = {
         'title': 'Citizen Dashboard',
-        'welcome_message': 'Welcome to your SmartCity EMS Portal',
-        'quick_actions': [
-            {'name': 'Report Emergency', 'icon': 'ambulance', 'url': '#'},
-            {'name': 'Report Utility Issue', 'icon': 'tools', 'url': '#'},
-            {'name': 'Track Requests', 'icon': 'history', 'url': '#'},
-            {'name': 'Request History', 'icon': 'file-alt', 'url': '#'},
-        ]
+        'user': request.user,
+        'pending_emergencies': 0,
+        'pending_complaints': 0,
+        'resolved_requests': 0,
+        'total_requests': 0,
     }
     return render(request, 'dashboard/citizen.html', context)
 
 
 @login_required
 def gov_dashboard(request):
-    """Government authority dashboard"""
+    """Government authority dashboard - show city stats"""
     if request.user.role != 'government_authority':
         return redirect('dashboard:dashboard')
     
+    # Get system statistics (will populate later)
+    total_users = User.objects.count()
+    citizens = User.objects.filter(role='citizen').count()
+    staff = total_users - citizens
+    
     context = {
         'title': 'Government Dashboard',
-        'welcome_message': 'City Performance & Analytics',
-        'stats': [
-            {'label': 'Total Emergencies', 'value': '0', 'icon': 'ambulance', 'color': 'primary'},
-            {'label': 'Avg Response Time', 'value': '0 min', 'icon': 'clock', 'color': 'success'},
-            {'label': 'Pending Complaints', 'value': '0', 'icon': 'exclamation-triangle', 'color': 'warning'},
-            {'label': 'Resolved Issues', 'value': '0', 'icon': 'check-circle', 'color': 'info'},
-        ]
+        'user': request.user,
+        'total_users': total_users,
+        'citizens': citizens,
+        'staff': staff,
+        'total_emergencies': 0,
+        'pending_emergencies': 0,
+        'resolved_emergencies': 0,
     }
     return render(request, 'dashboard/gov.html', context)
 
@@ -65,14 +71,11 @@ def utility_dashboard(request):
         return redirect('dashboard:dashboard')
     
     context = {
-        'title': 'Utility Management',
-        'welcome_message': 'Utility Complaint Management System',
-        'stats': [
-            {'label': 'Pending Complaints', 'value': '0', 'icon': 'list', 'color': 'warning'},
-            {'label': 'In Progress', 'value': '0', 'icon': 'sync', 'color': 'primary'},
-            {'label': 'Resolved Today', 'value': '0', 'icon': 'check', 'color': 'success'},
-            {'label': 'Workers Assigned', 'value': '0', 'icon': 'users', 'color': 'info'},
-        ]
+        'title': 'Utility Dashboard',
+        'user': request.user,
+        'pending_complaints': 0,
+        'in_progress': 0,
+        'resolved_today': 0,
     }
     return render(request, 'dashboard/utility.html', context)
 
@@ -84,14 +87,12 @@ def emergency_dashboard(request):
         return redirect('dashboard:dashboard')
     
     context = {
-        'title': 'Emergency Operations',
-        'welcome_message': 'Emergency Response Management',
-        'stats': [
-            {'label': 'Active Emergencies', 'value': '0', 'icon': 'bell', 'color': 'danger'},
-            {'label': 'Available Vehicles', 'value': '0', 'icon': 'truck', 'color': 'success'},
-            {'label': 'On Scene', 'value': '0', 'icon': 'map-marker', 'color': 'warning'},
-            {'label': 'Resolved Today', 'value': '0', 'icon': 'check-circle', 'color': 'info'},
-        ]
+        'title': 'Emergency Dashboard',
+        'user': request.user,
+        'active_emergencies': 0,
+        'available_vehicles': 0,
+        'on_scene': 0,
+        'resolved_today': 0,
     }
     return render(request, 'dashboard/emergency.html', context)
 
@@ -104,12 +105,10 @@ def driver_dashboard(request):
     
     context = {
         'title': 'Driver Dashboard',
-        'welcome_message': 'Emergency Vehicle Operations',
-        'stats': [
-            {'label': 'Current Assignment', 'value': 'None', 'icon': 'map-marked', 'color': 'primary'},
-            {'label': 'Status', 'value': 'Available', 'icon': 'check-circle', 'color': 'success'},
-            {'label': 'Completed Today', 'value': '0', 'icon': 'tasks', 'color': 'info'},
-            {'label': 'Total Distance', 'value': '0 km', 'icon': 'road', 'color': 'warning'},
-        ]
+        'user': request.user,
+        'current_assignment': 'None',
+        'status': 'Available',
+        'completed_today': 0,
+        'total_distance': '0 km',
     }
     return render(request, 'dashboard/driver.html', context)

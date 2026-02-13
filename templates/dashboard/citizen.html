@@ -1,87 +1,105 @@
-{% extends 'dashboard/base_dashboard.html' %}
-
-{% block title %}Citizen Dashboard - SmartCity EMS{% endblock %}
-
-{% block dashboard_content %}
+{% extends 'dashboard/base_dashboard.html' %} {% block title %}Citizen Dashboard
+- SmartCity EMS{% endblock %} {% block dashboard_content %}
 <div class="row mb-4">
-    <div class="col-12">
-        <h2 class="fw-bold"><i class="fas fa-home me-2"></i>{{ welcome_message }}</h2>
-        <p class="text-muted">Your SmartCity Emergency & Utility Management Portal</p>
-    </div>
+  <div class="col-12">
+    <h2><i class="fas fa-home me-2"></i>Welcome, {{ user.username }}!</h2>
+    <p class="text-muted">
+      Your SmartCity Emergency & Utility Management Portal
+    </p>
+  </div>
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card primary">
-            <i class="fas fa-bell stat-icon"></i>
-            <div class="stat-number">0</div>
-            <div class="stat-label">Pending Emergencies</div>
-        </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="stat-card primary">
+      <i class="fas fa-bell fa-2x mb-3"></i>
+      <div class="stat-number">{{ pending_emergencies }}</div>
+      <div class="stat-label">Pending Emergencies</div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card warning">
-            <i class="fas fa-tools stat-icon"></i>
-            <div class="stat-number">0</div>
-            <div class="stat-label">Open Complaints</div>
-        </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="stat-card warning">
+      <i class="fas fa-tools fa-2x mb-3"></i>
+      <div class="stat-number">{{ pending_complaints }}</div>
+      <div class="stat-label">Open Complaints</div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card success">
-            <i class="fas fa-check-circle stat-icon"></i>
-            <div class="stat-number">0</div>
-            <div class="stat-label">Resolved Requests</div>
-        </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="stat-card success">
+      <i class="fas fa-check-circle fa-2x mb-3"></i>
+      <div class="stat-number">{{ resolved_requests }}</div>
+      <div class="stat-label">Resolved Requests</div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card info">
-            <i class="fas fa-history stat-icon"></i>
-            <div class="stat-number">0</div>
-            <div class="stat-label">Total Requests</div>
-        </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="stat-card info">
+      <i class="fas fa-history fa-2x mb-3"></i>
+      <div class="stat-number">{{ total_requests }}</div>
+      <div class="stat-label">Total Requests</div>
     </div>
+  </div>
 </div>
 
 <div class="row">
-    <div class="col-lg-8 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-bolt me-2"></i>Quick Actions
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    {% for action in quick_actions %}
-                    <div class="col-md-6">
-                        <a href="{{ action.url }}" class="quick-action-btn bg-{{ forloop.counter|default:'primary' }}">
-                            <i class="fas fa-{{ action.icon }}"></i>
-                            <div class="fw-bold fs-5">{{ action.name }}</div>
-                        </a>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+  <div class="col-lg-8 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-bolt me-2"></i>Quick Actions
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <a
+              href="{% url 'emergency:report_emergency' %}"
+              class="btn btn-danger w-100 py-3"
+            >
+              <i class="fas fa-ambulance me-2"></i>Report Emergency
+            </a>
+          </div>
+          <div class="col-md-6">
+            <a href="#" class="btn btn-warning w-100 py-3">
+              <i class="fas fa-tools me-2"></i>Report Utility Issue
+            </a>
+          </div>
+          <div class="col-md-6">
+            <a
+              href="{% url 'emergency:my_requests' %}"
+              class="btn btn-info w-100 py-3"
+            >
+              <i class="fas fa-map-marked-alt me-2"></i>Track Requests
+            </a>
+          </div>
+          <div class="col-md-6">
+            <a
+              href="{% url 'emergency:my_requests' %}"
+              class="btn btn-success w-100 py-3"
+            >
+              <i class="fas fa-history me-2"></i>Request History
+            </a>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-info-circle me-2"></i>Important Notices
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info mb-3">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Water Supply:</strong> Scheduled maintenance on Main Street tomorrow 10 AM - 2 PM.
-                </div>
-                <div class="alert alert-warning mb-3">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>Traffic Alert:</strong> Road closure on Highway 1 until Friday.
-                </div>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle me-2"></i>
-                    <strong>System Update:</strong> New mobile app available for download!
-                </div>
-            </div>
+  </div>
+
+  <div class="col-lg-4 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-info-circle me-2"></i>Important Notices
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Water Supply:</strong> Scheduled maintenance on Main Street
+          tomorrow.
         </div>
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Traffic Alert:</strong> Road closure on Highway 1 until
+          Friday.
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
