@@ -1,0 +1,198 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Utility Officer Dashboard - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-tools me-2"></i>Utility Management Dashboard</h2>
+        <p class="text-muted">Manage and track utility complaints</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card warning">
+            <i class="fas fa-list fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_pending }}</div>
+            <div class="stat-label">Pending Complaints</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card primary">
+            <i class="fas fa-user-check fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_assigned }}</div>
+            <div class="stat-label">Assigned to You</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card info">
+            <i class="fas fa-sync fa-2x mb-3"></i>
+            <div class="stat-number">{{ in_progress }}</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card success">
+            <i class="fas fa-check fa-2x mb-3"></i>
+            <div class="stat-number">{{ resolved_today }}</div>
+            <div class="stat-label">Resolved Today</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-exclamation-triangle me-2"></i>Pending Complaints</span>
+                <span class="badge bg-warning">{{ total_pending }} Pending</span>
+            </div>
+            <div class="card-body">
+                {% if pending_complaints %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Location</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in pending_complaints %}
+                            <tr>
+                                <td><strong>{{ comp.complaint_id }}</strong></td>
+                                <td>
+                                    <i class="fas fa-{{ comp.utility_type.icon }} me-1"></i>
+                                    {{ comp.utility_type.name }}
+                                </td>
+                                <td>{{ comp.title|truncatewords:4 }}</td>
+                                <td>
+                                    {% if comp.priority == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif comp.priority == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ comp.address|truncatewords:3 }}</td>
+                                <td>{{ comp.created_at|date:"h:i A" }}</td>
+                                <td>
+                                    <a href="{% url 'utilities:assign_complaint' comp.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-user-check me-1"></i>Assign to Me
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h5 class="text-success">No Pending Complaints</h5>
+                    <p class="text-muted">All complaints have been assigned.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cogs me-2"></i>Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'utilities:officer_dashboard' %}" class="btn btn-info">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-user-check me-2"></i>My Assigned Complaints</span>
+                <span class="badge bg-primary">{{ total_assigned }} Assigned</span>
+            </div>
+            <div class="card-body">
+                {% if assigned_complaints %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Complaint ID</th>
+                                <th>Type</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in assigned_complaints %}
+                            <tr>
+                                <td><strong>{{ comp.complaint_id }}</strong></td>
+                                <td>
+                                    <i class="fas fa-{{ comp.utility_type.icon }} me-1"></i>
+                                    {{ comp.utility_type.name }}
+                                </td>
+                                <td>{{ comp.title|truncatewords:4 }}</td>
+                                <td>
+                                    {% if comp.status == 'assigned' %}
+                                    <span class="badge bg-primary">Assigned</span>
+                                    {% elif comp.status == 'in_progress' %}
+                                    <span class="badge bg-info">In Progress</span>
+                                    {% elif comp.status == 'resolved' %}
+                                    <span class="badge bg-success">Resolved</span>
+                                    {% elif comp.status == 'escalated' %}
+                                    <span class="badge bg-warning">Escalated</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if comp.priority == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif comp.priority == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ comp.created_at|date:"M d" }}</td>
+                                <td>
+                                    <a href="{% url 'utilities:update_complaint_status' comp.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit me-1"></i>Update
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-user fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Assigned Complaints</h5>
+                    <p class="text-muted">You don't have any complaints assigned to you.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

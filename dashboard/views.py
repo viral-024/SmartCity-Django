@@ -28,14 +28,19 @@ def citizen_dashboard(request):
     if request.user.role != 'citizen':
         return redirect('dashboard:dashboard')
     
-    # Get user's emergency requests and complaints (will add later)
+    # Get actual statistics from database
+    pending_emergencies = request.user.emergency_requests.filter(status='pending').count()
+    pending_complaints = request.user.complaints.filter(status='pending').count()
+    resolved_requests = request.user.emergency_requests.filter(status='resolved').count() + request.user.complaints.filter(status='resolved').count()
+    total_requests = request.user.emergency_requests.count() + request.user.complaints.count()
+    
     context = {
         'title': 'Citizen Dashboard',
         'user': request.user,
-        'pending_emergencies': 0,
-        'pending_complaints': 0,
-        'resolved_requests': 0,
-        'total_requests': 0,
+        'pending_emergencies': pending_emergencies,
+        'pending_complaints': pending_complaints,
+        'resolved_requests': resolved_requests,
+        'total_requests': total_requests,
     }
     return render(request, 'dashboard/citizen.html', context)
 

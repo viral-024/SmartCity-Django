@@ -14,6 +14,11 @@ class EmergencyType(models.Model):
 
 class EmergencyRequest(models.Model):
     """Emergency request submitted by citizens"""
+    citizen = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='emergency_requests'
+    )
     
     PRIORITY_CHOICES = [
         ('critical', 'Critical'),

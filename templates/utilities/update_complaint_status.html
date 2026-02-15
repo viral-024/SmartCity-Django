@@ -1,0 +1,137 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Update Complaint Status - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-edit me-2"></i>Update Complaint Status</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:utility' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'utilities:officer_dashboard' %}">My Complaints</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Update Status</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-file-alt me-2"></i>Complaint Information
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Complaint ID:</strong> {{ complaint.complaint_id }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Type:</strong> 
+                    <i class="fas fa-{{ complaint.utility_type.icon }} me-1"></i>
+                    {{ complaint.utility_type.name }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Title:</strong> {{ complaint.title }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Current Status:</strong>
+                    {% if complaint.status == 'assigned' %}
+                    <span class="badge bg-primary fs-6">Assigned</span>
+                    {% elif complaint.status == 'in_progress' %}
+                    <span class="badge bg-info fs-6">In Progress</span>
+                    {% elif complaint.status == 'resolved' %}
+                    <span class="badge bg-success fs-6">Resolved</span>
+                    {% elif complaint.status == 'escalated' %}
+                    <span class="badge bg-warning fs-6">Escalated</span>
+                    {% else %}
+                    <span class="badge bg-danger fs-6">Rejected</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Submitted:</strong> {{ complaint.created_at|date:"M d, Y" }} at {{ complaint.created_at|time:"h:i A" }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-sync-alt me-2"></i>Update Status
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label"><strong>Select New Status:</strong></label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="status" id="status_assigned" 
+                                   value="assigned" {% if complaint.status == 'assigned' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_assigned">
+                                <span class="badge bg-primary">Assigned</span>
+                                <br><small class="text-muted">Complaint assigned but work not started</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="status" id="status_in_progress" 
+                                   value="in_progress" {% if complaint.status == 'in_progress' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_in_progress">
+                                <span class="badge bg-info">In Progress</span>
+                                <br><small class="text-muted">Work is currently in progress</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="status" id="status_resolved" 
+                                   value="resolved" {% if complaint.status == 'resolved' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_resolved">
+                                <span class="badge bg-success">Resolved</span>
+                                <br><small class="text-muted">Issue has been resolved</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="status" id="status_escalated" 
+                                   value="escalated" {% if complaint.status == 'escalated' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_escalated">
+                                <span class="badge bg-warning">Escalated</span>
+                                <br><small class="text-muted">Issue escalated to higher authority</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status" id="status_rejected" 
+                                   value="rejected" {% if complaint.status == 'rejected' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_rejected">
+                                <span class="badge bg-danger">Rejected</span>
+                                <br><small class="text-muted">Complaint rejected (invalid/unactionable)</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label"><strong>Update Notes (Optional):</strong></label>
+                        <textarea name="notes" class="form-control" rows="4" 
+                                  placeholder="Add notes about the status update or resolution details..."></textarea>
+                        <small class="text-muted">These notes will be visible to the citizen who reported this complaint.</small>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'utilities:officer_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Status
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Complaint {{ complaint.complaint_id }} - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-file-alt me-2"></i>Complaint {{ complaint.complaint_id }}</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:citizen' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'utilities:my_complaints' %}">My Complaints</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ complaint.complaint_id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Complaint Information
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-wrench me-2"></i>Type:</strong><br>
+                        <i class="fas fa-{{ complaint.utility_type.icon }} me-1"></i>
+                        {{ complaint.utility_type.name }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-exclamation-circle me-2"></i>Priority:</strong><br>
+                        {% if complaint.priority == 'high' %}
+                        <span class="badge bg-danger fs-6">High</span>
+                        {% elif complaint.priority == 'medium' %}
+                        <span class="badge bg-warning fs-6">Medium</span>
+                        {% else %}
+                        <span class="badge bg-success fs-6">Low</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="fas fa-heading me-2"></i>Title:</strong><br>
+                    {{ complaint.title }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="fas fa-map-marker-alt me-2"></i>Location:</strong><br>
+                    {{ complaint.address }}<br>
+                    {% if complaint.landmark %}
+                    <small class="text-muted"><i class="fas fa-thumbtack me-1"></i>{{ complaint.landmark }}</small>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="fas fa-info-circle me-2"></i>Description:</strong><br>
+                    <p class="border p-3 rounded">{{ complaint.description }}</p>
+                </div>
+                
+                {% if complaint.resolution_notes %}
+                <div class="mb-3">
+                    <strong><i class="fas fa-check-circle me-2"></i>Resolution Notes:</strong><br>
+                    <p class="border p-3 rounded bg-light">{{ complaint.resolution_notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-clock me-2"></i>Timeline
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Submitted:</strong> {{ complaint.created_at|date:"M d, Y" }} at {{ complaint.created_at|time:"h:i A" }}
+                    </li>
+                    {% if complaint.assigned_at %}
+                    <li class="list-group-item">
+                        <strong>Assigned:</strong> {{ complaint.assigned_at|date:"M d, Y" }} at {{ complaint.assigned_at|time:"h:i A" }}
+                        {% if complaint.assigned_officer %}
+                        <br><small>Assigned to: {{ complaint.assigned_officer.username }}</small>
+                        {% endif %}
+                    </li>
+                    {% endif %}
+                    {% if complaint.resolved_at %}
+                    <li class="list-group-item">
+                        <strong>Resolved:</strong> {{ complaint.resolved_at|date:"M d, Y" }} at {{ complaint.resolved_at|time:"h:i A" }}
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        
+        {% if updates %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-comments me-2"></i>Updates & Comments
+            </div>
+            <div class="card-body">
+                {% for update in updates %}
+                <div class="mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>{{ update.updated_by.username }}</strong>
+                        <small class="text-muted">{{ update.created_at|date:"M d, Y" }} at {{ update.created_at|time:"h:i A" }}</small>
+                    </div>
+                    <p class="mb-0">{{ update.update_text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-{{ complaint.status|slice:':1' }} text-white">
+                <i class="fas fa-flag me-2"></i>Status
+            </div>
+            <div class="card-body text-center">
+                <h3>
+                    {% if complaint.status == 'pending' %}
+                    <span class="badge bg-secondary fs-3">Pending</span>
+                    {% elif complaint.status == 'assigned' %}
+                    <span class="badge bg-primary fs-3">Assigned</span>
+                    {% elif complaint.status == 'in_progress' %}
+                    <span class="badge bg-info fs-3">In Progress</span>
+                    {% elif complaint.status == 'resolved' %}
+                    <span class="badge bg-success fs-3">Resolved</span>
+                    {% elif complaint.status == 'escalated' %}
+                    <span class="badge bg-warning fs-3">Escalated</span>
+                    {% else %}
+                    <span class="badge bg-danger fs-3">Rejected</span>
+                    {% endif %}
+                </h3>
+                <p class="mt-3 text-muted">Current status of your complaint</p>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2 mt-4">
+            <a href="{% url 'utilities:my_complaints' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Complaints
+            </a>
+            <a href="{% url 'utilities:submit_complaint' %}" class="btn btn-warning">
+                <i class="fas fa-tools me-1"></i>Report New Issue
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

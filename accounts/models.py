@@ -16,3 +16,13 @@ class User(AbstractUser):
     
     def __str__(self):
         return f"{self.username} - {self.get_role_display()}"
+    
+    def get_dashboard_url(self):
+        dashboard_urls = {
+            'citizen': '/dashboard/citizen/',
+            'government_authority': '/dashboard/gov/',
+            'utility_officer': '/dashboard/utility/',
+            'emergency_operator': '/dashboard/emergency/',
+            'vehicle_driver': '/dashboard/driver/',
+        }
+        return dashboard_urls.get(self.role, '/dashboard/')
