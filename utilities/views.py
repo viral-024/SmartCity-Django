@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.utils import timezone 
 from .models import Complaint, UtilityType, ComplaintUpdate
 from .forms import ComplaintForm
 
@@ -94,14 +95,18 @@ def complaint_detail(request, complaint_id):
 
 
 @login_required
+@login_required
 def officer_dashboard(request):
     """Utility officer dashboard - view assigned complaints"""
     if request.user.role != 'utility_officer':
         messages.error(request, 'Access denied. Only utility officers can access this page.')
         return redirect('dashboard:dashboard')
     
-    # Get complaints assigned to this officer
-    assigned_complaints = Complaint.objects.filter(assigned_officer=request.user).order_by('-created_at')
+    # Get complaints assigned to this officer (EXCLUDE resolved complaints)
+    assigned_complaints = Complaint.objects.filter(
+        assigned_officer=request.user,
+        status__in=['pending', 'assigned', 'in_progress', 'escalated']
+    ).order_by('-created_at')
     
     # Get pending complaints (not assigned to anyone)
     pending_complaints = Complaint.objects.filter(
@@ -113,7 +118,8 @@ def officer_dashboard(request):
     total_assigned = assigned_complaints.count()
     total_pending = pending_complaints.count()
     in_progress = assigned_complaints.filter(status='in_progress').count()
-    resolved_today = assigned_complaints.filter(
+    resolved_today = Complaint.objects.filter(
+        assigned_officer=request.user,
         status='resolved',
         resolved_at__date=timezone.now().date()
     ).count()
@@ -128,7 +134,6 @@ def officer_dashboard(request):
     }
     
     return render(request, 'utilities/officer_dashboard.html', context)
-
 
 @login_required
 def assign_complaint(request, complaint_id):

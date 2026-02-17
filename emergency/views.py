@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import EmergencyRequest, EmergencyType, EmergencyVehicle, DispatchRecord  # ← Fixed imports
-from .forms import EmergencyRequestForm, EmergencyVehicleForm  # ← Fixed imports
+from django.utils import timezone  # ← FIXED: Added missing import
+from .models import EmergencyRequest, EmergencyType, EmergencyVehicle, DispatchRecord
+from .forms import EmergencyRequestForm, EmergencyVehicleForm
 
 @login_required
 def citizen_emergency_request(request):
@@ -106,6 +107,14 @@ def operator_dashboard(request):
     total_vehicles = EmergencyVehicle.objects.count()
     available_vehicles = EmergencyVehicle.objects.filter(is_available=True).count()
     
+    # Calculate status counts
+    active_emergencies = EmergencyRequest.objects.filter(status__in=['assigned', 'en_route', 'on_scene']).count()
+    on_scene = DispatchRecord.objects.filter(status='on_scene').count()
+    resolved_today = EmergencyRequest.objects.filter(
+        status='resolved',
+        resolved_at__date=timezone.now().date()  # ← Now works because timezone is imported
+    ).count()
+    
     context = {
         'pending_emergencies': pending_emergencies,
         'active_dispatches': active_dispatches,
@@ -113,6 +122,9 @@ def operator_dashboard(request):
         'total_active': total_active,
         'total_vehicles': total_vehicles,
         'available_vehicles': available_vehicles,
+        'active_emergencies': active_emergencies,
+        'on_scene': on_scene,
+        'resolved_today': resolved_today,
     }
     
     return render(request, 'emergency/operator_dashboard.html', context)
@@ -170,11 +182,16 @@ def update_dispatch_status(request, dispatch_id):
     
     if request.method == 'POST':
         status = request.POST.get('status')
+        
+        # FIX: Convert 'completed' to 'resolved' for emergency request
+        emergency_status = 'resolved' if status == 'completed' else status
+        
+        # Update dispatch record
         dispatch.status = status
         dispatch.save()
         
-        # Update emergency request status
-        dispatch.emergency_request.status = status
+        # Update emergency request status with correct mapping
+        dispatch.emergency_request.status = emergency_status
         dispatch.emergency_request.save()
         
         # If completed, mark vehicle as available
