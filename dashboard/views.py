@@ -15,7 +15,7 @@ def dashboard_redirect(request):
     elif role == 'utility_officer':
         return redirect('dashboard:utility')
     elif role == 'emergency_operator':
-        return redirect('dashboard:emergency')
+        return redirect('emergency:operator_dashboard')  # DIRECT REDIRECT
     elif role == 'vehicle_driver':
         return redirect('dashboard:driver')
     else:

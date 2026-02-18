@@ -87,28 +87,6 @@
                         {% endif %}
                     </div>
                     
-                    <div class="card mb-4">
-                        <div class="card-header bg-info text-white">
-                            <i class="fas fa-location-arrow me-2"></i>Location Detection (Optional)
-                        </div>
-                        <div class="card-body">
-                            <p class="mb-3">
-                                <i class="fas fa-info-circle me-2"></i>
-                                We can automatically detect your location for faster response.
-                            </p>
-                            <button type="button" class="btn btn-info" onclick="getLocation()">
-                                <i class="fas fa-location-arrow me-1"></i>Detect My Location
-                            </button>
-                            <p class="text-muted small mt-2 mb-0">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Location is optional. Your address is sufficient.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    {{ form.location_lat }}
-                    {{ form.location_lng }}
-                    
                     <div class="d-flex gap-2">
                         <a href="{% url 'dashboard:citizen' %}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-1"></i>Cancel
@@ -149,38 +127,4 @@
     </div>
 </div>
 
-<script>
-// Get user location
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                document.getElementById('id_location_lat').value = position.coords.latitude;
-                document.getElementById('id_location_lng').value = position.coords.longitude;
-                alert('Location detected successfully!\nLat: ' + position.coords.latitude + '\nLng: ' + position.coords.longitude);
-            },
-            function(error) {
-                let errorMessage = 'Unable to detect location. ';
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage += 'User denied location access.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage += 'Location information is unavailable.';
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage += 'Location request timed out.';
-                        break;
-                    default:
-                        errorMessage += 'An unknown error occurred.';
-                }
-                alert(errorMessage + '\n\nYour address is sufficient for complaint processing.');
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-    } else {
-        alert('Geolocation is not supported by this browser.');
-    }
-}
-</script>
 {% endblock %}

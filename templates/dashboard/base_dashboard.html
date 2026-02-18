@@ -4,14 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Dashboard - SmartCity EMS{% endblock %}</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
       body {
         background-color: #f5f7fb;
@@ -68,21 +62,11 @@
         color: white;
         height: 100%;
       }
-      .stat-card.primary {
-        background: linear-gradient(135deg, #2563eb, #1e40af);
-      }
-      .stat-card.success {
-        background: linear-gradient(135deg, #10b981, #059669);
-      }
-      .stat-card.warning {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-      }
-      .stat-card.danger {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-      }
-      .stat-card.info {
-        background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      }
+      .stat-card.primary { background: linear-gradient(135deg, #2563eb, #1e40af); }
+      .stat-card.success { background: linear-gradient(135deg, #10b981, #059669); }
+      .stat-card.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+      .stat-card.danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+      .stat-card.info { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
       .stat-number {
         font-size: 2rem;
         font-weight: 700;
@@ -108,19 +92,14 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid">
-        <a
-          class="navbar-brand d-flex align-items-center"
-          href="{% url 'dashboard:dashboard' %}"
-        >
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard:dashboard' %}">
           <i class="fas fa-city me-2"></i>
           <span>SmartCity EMS</span>
         </a>
         <div class="d-flex align-items-center">
           <span class="text-white me-3">
             <i class="fas fa-user me-1"></i> {{ user.username }}
-            <span class="badge bg-light text-dark ms-2"
-              >{{ user.get_role_display }}</span
-            >
+            <span class="badge bg-light text-dark ms-2">{{ user.get_role_display }}</span>
           </span>
           <a href="{% url 'accounts:logout' %}" class="btn btn-outline-light">
             <i class="fas fa-sign-out-alt me-1"></i> Logout
@@ -132,137 +111,118 @@
     <div class="container-fluid">
       <div class="row">
         <!-- Sidebar -->
-        <!-- Sidebar -->
         <nav class="col-md-3 col-lg-2 d-md-block sidebar">
           <div class="position-sticky pt-3">
             <ul class="nav flex-column">
               {% if user.role == 'citizen' %}
               <li class="nav-item">
-                <a
-                  class="nav-link {% if request.path == '/dashboard/citizen/' %}active{% endif %}"
-                  href="{% url 'dashboard:citizen' %}"
-                  ><i class="fas fa-home"></i> Dashboard</a
-                >
+                <a class="nav-link {% if '/dashboard/citizen/' in request.path %}active{% endif %}" href="{% url 'dashboard:citizen' %}">
+                  <i class="fas fa-home"></i> Dashboard
+                </a>
               </li>
               <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="{% url 'emergency:report_emergency' %}"
-                  ><i class="fas fa-exclamation-triangle"></i> Report
-                  Emergency</a
-                >
+                <a class="nav-link" href="{% url 'emergency:report_emergency' %}">
+                  <i class="fas fa-exclamation-triangle"></i> Report Emergency
+                </a>
               </li>
               <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="{% url 'utilities:submit_complaint' %}"
-                  ><i class="fas fa-tools"></i> Report Utility Issue</a
-                >
+                <a class="nav-link" href="{% url 'utilities:submit_complaint' %}">
+                  <i class="fas fa-tools"></i> Report Utility Issue
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'emergency:my_requests' %}"
-                  ><i class="fas fa-history"></i> My Requests</a
-                >
+                <a class="nav-link" href="{% url 'emergency:my_requests' %}">
+                  <i class="fas fa-history"></i> My Requests
+                </a>
               </li>
 
               {% elif user.role == 'government_authority' %}
               <li class="nav-item">
-                <a
-                  class="nav-link {% if request.path == '/dashboard/gov/' %}active{% endif %}"
-                  href="{% url 'dashboard:gov' %}"
-                  ><i class="fas fa-chart-line"></i> Analytics</a
-                >
+                <a class="nav-link {% if '/dashboard/gov/' in request.path %}active{% endif %}" href="{% url 'dashboard:gov' %}">
+                  <i class="fas fa-chart-line"></i> Analytics
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-cog"></i> System Config</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-cog"></i> System Config
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-users"></i> User Management</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-users"></i> User Management
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-trophy"></i> Performance</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-trophy"></i> Performance
+                </a>
               </li>
 
               {% elif user.role == 'utility_officer' %}
               <li class="nav-item">
-                <a
-                  class="nav-link {% if request.path == '/dashboard/utility/' %}active{% endif %}"
-                  href="{% url 'dashboard:utility' %}"
-                  ><i class="fas fa-tools"></i> Dashboard</a
-                >
+                <a class="nav-link {% if '/dashboard/utility/' in request.path %}active{% endif %}" href="{% url 'dashboard:utility' %}">
+                  <i class="fas fa-tools"></i> Dashboard
+                </a>
               </li>
               <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="{% url 'utilities:officer_dashboard' %}"
-                  ><i class="fas fa-list"></i> Pending Complaints</a
-                >
+                <a class="nav-link" href="{% url 'utilities:officer_dashboard' %}">
+                  <i class="fas fa-list"></i> Pending Complaints
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-users"></i> Manage Workers</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-users"></i> Manage Workers
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-chart-bar"></i> Reports</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-chart-bar"></i> Reports
+                </a>
               </li>
 
               {% elif user.role == 'emergency_operator' %}
+              <!-- CRITICAL FIX: Direct link to operational dashboard -->
               <li class="nav-item">
-                <a
-                  class="nav-link {% if request.path == '/dashboard/emergency/' %}active{% endif %}"
-                  href="{% url 'dashboard:emergency' %}"
-                  ><i class="fas fa-ambulance"></i> Dashboard</a
-                >
+                <a class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}" href="{% url 'emergency:operator_dashboard' %}">
+                  <i class="fas fa-ambulance"></i> Dashboard
+                </a>
               </li>
               <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="{% url 'emergency:operator_dashboard' %}"
-                  ><i class="fas fa-bell"></i> Pending Emergencies</a
-                >
+                <a class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}" href="{% url 'emergency:operator_dashboard' %}">
+                  <i class="fas fa-bell"></i> Pending Emergencies
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'emergency:manage_vehicles' %}"
-                  ><i class="fas fa-truck"></i> Vehicle Dispatch</a
-                >
+                <a class="nav-link {% if '/emergency/vehicles/' in request.path %}active{% endif %}" href="{% url 'emergency:manage_vehicles' %}">
+                  <i class="fas fa-truck"></i> Vehicle Dispatch
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-map-marked"></i> Track Vehicles</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-map-marked"></i> Track Vehicles
+                </a>
               </li>
 
               {% elif user.role == 'vehicle_driver' %}
               <li class="nav-item">
-                <a
-                  class="nav-link {% if request.path == '/dashboard/driver/' %}active{% endif %}"
-                  href="{% url 'dashboard:driver' %}"
-                  ><i class="fas fa-map-marked-alt"></i> Current Task</a
-                >
+                <a class="nav-link {% if '/dashboard/driver/' in request.path %}active{% endif %}" href="{% url 'dashboard:driver' %}">
+                  <i class="fas fa-map-marked-alt"></i> Current Task
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-sync-alt"></i> Update Status</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-sync-alt"></i> Update Status
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-road"></i> Report Blockage</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-road"></i> Report Blockage
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"
-                  ><i class="fas fa-history"></i> Task History</a
-                >
+                <a class="nav-link" href="#">
+                  <i class="fas fa-history"></i> Task History
+                </a>
               </li>
               {% endif %}
             </ul>
@@ -274,20 +234,15 @@
           {% if messages %}
           <div class="container">
             {% for message in messages %}
-            <div
-              class="alert alert-{{ message.tags }} alert-dismissible fade show"
-              role="alert"
-            >
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
               <i class="fas fa-{{ message.tags }} me-2"></i>{{ message }}
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-              ></button>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             {% endfor %}
           </div>
-          {% endif %} {% block dashboard_content %}{% endblock %}
+          {% endif %} 
+          
+          {% block dashboard_content %}{% endblock %}
         </main>
       </div>
     </div>

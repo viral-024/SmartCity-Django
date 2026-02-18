@@ -242,3 +242,4 @@ def delete_vehicle(request, vehicle_id):
     vehicle.delete()
     messages.success(request, 'Vehicle deleted successfully!')
     return redirect('emergency:manage_vehicles')
+
