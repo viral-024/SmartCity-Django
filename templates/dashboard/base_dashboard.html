@@ -121,18 +121,13 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'emergency:report_emergency' %}">
-                  <i class="fas fa-exclamation-triangle"></i> Report Emergency
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'utilities:submit_complaint' %}">
-                  <i class="fas fa-tools"></i> Report Utility Issue
-                </a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" href="{% url 'emergency:my_requests' %}">
-                  <i class="fas fa-history"></i> My Requests
+                  <i class="fas fa-history"></i> Emergency Requests
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'utilities:my_complaints' %}">
+                  <i class="fas fa-history"></i> Utility Complaints
                 </a>
               </li>
 
@@ -160,13 +155,8 @@
 
               {% elif user.role == 'utility_officer' %}
               <li class="nav-item">
-                <a class="nav-link {% if '/dashboard/utility/' in request.path %}active{% endif %}" href="{% url 'dashboard:utility' %}">
+                <a class="nav-link {% if '/dashboard/utility/' in request.path %}active{% endif %}" href="{% url 'utilities:officer_dashboard' %}">
                   <i class="fas fa-tools"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'utilities:officer_dashboard' %}">
-                  <i class="fas fa-list"></i> Pending Complaints
                 </a>
               </li>
               <li class="nav-item">
@@ -185,11 +175,6 @@
               <li class="nav-item">
                 <a class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}" href="{% url 'emergency:operator_dashboard' %}">
                   <i class="fas fa-ambulance"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}" href="{% url 'emergency:operator_dashboard' %}">
-                  <i class="fas fa-bell"></i> Pending Emergencies
                 </a>
               </li>
               <li class="nav-item">

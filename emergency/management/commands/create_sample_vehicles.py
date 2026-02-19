@@ -8,7 +8,7 @@ class Command(BaseCommand):
         # Check if vehicles already exist
         if EmergencyVehicle.objects.exists():
             self.stdout.write(self.style.WARNING('⚠ Emergency vehicles already exist. Skipping...'))
-            return
+            # return
 
         vehicles_data = [
             {

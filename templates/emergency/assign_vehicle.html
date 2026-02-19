@@ -27,12 +27,12 @@
                         <strong>Emergency ID:</strong> #{{ emergency.id }}
                     </div>
                     <div class="col-md-6">
-                        <strong>Type:</strong> 
+                        <strong>Type:</strong>
                         <i class="fas fa-{{ emergency.emergency_type.icon }} me-1"></i>
                         {{ emergency.emergency_type.name }}
                     </div>
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>Priority:</strong>
                     {% if emergency.priority == 'critical' %}
@@ -45,7 +45,7 @@
                     <span class="badge bg-success fs-6">Low</span>
                     {% endif %}
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>Location:</strong><br>
                     {{ emergency.address }}<br>
@@ -53,27 +53,27 @@
                     <small class="text-muted"><i class="fas fa-thumbtack me-1"></i>{{ emergency.landmark }}</small>
                     {% endif %}
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>Contact:</strong> {{ emergency.contact_number }}
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>Description:</strong><br>
                     <p class="border p-3 rounded">{{ emergency.description }}</p>
                 </div>
             </div>
         </div>
-        
+
         <div class="card mt-4">
             <div class="card-header bg-success text-white">
-                <i class="fas fa-car me-2"></i>Available Vehicles
+                <i class="fas fa-car me-2"></i>Available vehicles
             </div>
             <div class="card-body">
                 {% if available_vehicles %}
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead class="table-light">
@@ -87,7 +87,7 @@
                             </thead>
                             <tbody>
                                 {% for vehicle in available_vehicles %}
-                                <tr>
+                                <tr onclick="selectRadio(this)">
                                     <td>
                                         <input type="radio" name="vehicle_id" value="{{ vehicle.id }}" required>
                                     </td>
@@ -96,11 +96,19 @@
                                     <td>{{ vehicle.driver_name }}</td>
                                     <td>{{ vehicle.driver_contact }}</td>
                                 </tr>
+
+                                <script>
+                                    function selectRadio(row) {
+                                        const radio = row.querySelector('input[type="radio"]');
+                                        radio.checked = true;
+                                    }
+                                </script>
+
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="d-flex gap-2 mt-3">
                         <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-1"></i>Cancel
@@ -114,7 +122,8 @@
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <strong>No Available Vehicles!</strong><br>
-                    All vehicles are currently dispatched. Please wait for a vehicle to become available or add new vehicles.
+                    All vehicles are currently dispatched. Please wait for a vehicle to become available or add new
+                    vehicles.
                 </div>
                 <a href="{% url 'emergency:manage_vehicles' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-1"></i>Add New Vehicle
@@ -123,7 +132,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-4 mb-4">
         <div class="card">
             <div class="card-header">
@@ -137,9 +146,9 @@
                     <li><i class="fas fa-check text-success me-2"></i>Consider driver experience</li>
                     <li><i class="fas fa-check text-success me-2"></i>Check vehicle condition</li>
                 </ul>
-                
+
                 <hr>
-                
+
                 <h6 class="fw-bold mb-3">Priority Guidelines:</h6>
                 <ul class="small">
                     <li><span class="badge bg-danger me-2">Critical</span>Life-threatening situations</li>
@@ -147,10 +156,11 @@
                     <li><span class="badge bg-info me-2">Medium</span>Minor emergencies</li>
                     <li><span class="badge bg-success me-2">Low</span>Non-urgent situations</li>
                 </ul>
-                
+
                 <div class="alert alert-info mt-3 mb-0">
                     <i class="fas fa-lightbulb me-2"></i>
-                    <strong>Tip:</strong> After assignment, update dispatch status as vehicle progresses (En Route → On Scene → Completed).
+                    <strong>Tip:</strong> After assignment, update dispatch status as vehicle progresses (En Route → On
+                    Scene → Completed).
                 </div>
             </div>
         </div>

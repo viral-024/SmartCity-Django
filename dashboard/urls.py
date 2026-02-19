@@ -8,6 +8,6 @@ urlpatterns = [
     path('citizen/', views.citizen_dashboard, name='citizen'),
     path('gov/', views.gov_dashboard, name='gov'),
     path('utility/', views.utility_dashboard, name='utility'),
-    # path('emergency/', views.emergency_dashboard, name='emergency'),
+    path('emergency/', views.emergency_dashboard, name='emergency'),
     path('driver/', views.driver_dashboard, name='driver'),
 ]
