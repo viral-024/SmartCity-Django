@@ -4,8 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Dashboard - SmartCity EMS{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
       body {
         background-color: #f5f7fb;
@@ -62,11 +68,21 @@
         color: white;
         height: 100%;
       }
-      .stat-card.primary { background: linear-gradient(135deg, #2563eb, #1e40af); }
-      .stat-card.success { background: linear-gradient(135deg, #10b981, #059669); }
-      .stat-card.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
-      .stat-card.danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
-      .stat-card.info { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+      .stat-card.primary {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+      }
+      .stat-card.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+      }
+      .stat-card.warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+      }
+      .stat-card.danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+      }
+      .stat-card.info {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      }
       .stat-number {
         font-size: 2rem;
         font-weight: 700;
@@ -92,14 +108,19 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard:dashboard' %}">
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="{% url 'dashboard:dashboard' %}"
+        >
           <i class="fas fa-city me-2"></i>
           <span>SmartCity EMS</span>
         </a>
         <div class="d-flex align-items-center">
           <span class="text-white me-3">
             <i class="fas fa-user me-1"></i> {{ user.username }}
-            <span class="badge bg-light text-dark ms-2">{{ user.get_role_display }}</span>
+            <span class="badge bg-light text-dark ms-2"
+              >{{ user.get_role_display }}</span
+            >
           </span>
           <a href="{% url 'accounts:logout' %}" class="btn btn-outline-light">
             <i class="fas fa-sign-out-alt me-1"></i> Logout
@@ -111,12 +132,16 @@
     <div class="container-fluid">
       <div class="row">
         <!-- Sidebar -->
+        <!-- Sidebar -->
         <nav class="col-md-3 col-lg-2 d-md-block sidebar">
           <div class="position-sticky pt-3">
             <ul class="nav flex-column">
               {% if user.role == 'citizen' %}
               <li class="nav-item">
-                <a class="nav-link {% if '/dashboard/citizen/' in request.path %}active{% endif %}" href="{% url 'dashboard:citizen' %}">
+                <a
+                  class="nav-link {% if '/dashboard/citizen/' in request.path %}active{% endif %}"
+                  href="{% url 'dashboard:citizen' %}"
+                >
                   <i class="fas fa-home"></i> Dashboard
                 </a>
               </li>
@@ -133,7 +158,10 @@
 
               {% elif user.role == 'government_authority' %}
               <li class="nav-item">
-                <a class="nav-link {% if '/dashboard/gov/' in request.path %}active{% endif %}" href="{% url 'dashboard:gov' %}">
+                <a
+                  class="nav-link {% if '/dashboard/gov/' in request.path %}active{% endif %}"
+                  href="{% url 'dashboard:gov' %}"
+                >
                   <i class="fas fa-chart-line"></i> Analytics
                 </a>
               </li>
@@ -155,7 +183,10 @@
 
               {% elif user.role == 'utility_officer' %}
               <li class="nav-item">
-                <a class="nav-link {% if '/dashboard/utility/' in request.path %}active{% endif %}" href="{% url 'utilities:officer_dashboard' %}">
+                <a
+                  class="nav-link {% if '/utilities/officer/' in request.path %}active{% endif %}"
+                  href="{% url 'utilities:officer_dashboard' %}"
+                >
                   <i class="fas fa-tools"></i> Dashboard
                 </a>
               </li>
@@ -171,37 +202,44 @@
               </li>
 
               {% elif user.role == 'emergency_operator' %}
-              <!-- CRITICAL FIX: Direct link to operational dashboard -->
               <li class="nav-item">
-                <a class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}" href="{% url 'emergency:operator_dashboard' %}">
+                <a
+                  class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}"
+                  href="{% url 'emergency:operator_dashboard' %}"
+                >
                   <i class="fas fa-ambulance"></i> Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link {% if '/emergency/vehicles/' in request.path %}active{% endif %}" href="{% url 'emergency:manage_vehicles' %}">
-                  <i class="fas fa-truck"></i> Vehicle Dispatch
+                <a
+                  class="nav-link {% if '/emergency/manage-teams/' in request.path %}active{% endif %}"
+                  href="{% url 'emergency:manage_teams' %}"
+                >
+                  <i class="fas fa-users"></i> Manage Teams
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-map-marked"></i> Track Vehicles
+                <a
+                  class="nav-link {% if '/emergency/vehicles/' in request.path %}active{% endif %}"
+                  href="{% url 'emergency:manage_vehicles' %}"
+                >
+                  <i class="fas fa-truck"></i> Manage Vehicles
                 </a>
               </li>
 
-              {% elif user.role == 'vehicle_driver' %}
+              {% elif user.role == 'worker' %}
+              <!-- CHANGED FROM 'vehicle_driver' -->
               <li class="nav-item">
-                <a class="nav-link {% if '/dashboard/driver/' in request.path %}active{% endif %}" href="{% url 'dashboard:driver' %}">
-                  <i class="fas fa-map-marked-alt"></i> Current Task
+                <a
+                  class="nav-link {% if '/dashboard/worker/' in request.path %}active{% endif %}"
+                  href="{% url 'dashboard:worker' %}"
+                >
+                  <i class="fas fa-user"></i> Dashboard
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#">
-                  <i class="fas fa-sync-alt"></i> Update Status
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-road"></i> Report Blockage
+                  <i class="fas fa-tasks"></i> My Tasks
                 </a>
               </li>
               <li class="nav-item">
@@ -209,7 +247,9 @@
                   <i class="fas fa-history"></i> Task History
                 </a>
               </li>
+
               {% endif %}
+              <!-- ONLY ONE endif at the VERY END -->
             </ul>
           </div>
         </nav>
@@ -219,15 +259,20 @@
           {% if messages %}
           <div class="container">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show"
+              role="alert"
+            >
               <i class="fas fa-{{ message.tags }} me-2"></i>{{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+              ></button>
             </div>
             {% endfor %}
           </div>
-          {% endif %} 
-          
-          {% block dashboard_content %}{% endblock %}
+          {% endif %} {% block dashboard_content %}{% endblock %}
         </main>
       </div>
     </div>

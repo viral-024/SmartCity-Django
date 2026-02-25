@@ -41,7 +41,7 @@ def login_view(request):
             'government_authority': '1111',
             'utility_officer': '2222',
             'emergency_operator': '3333',
-            'vehicle_driver': '4444',
+            'worker': '4444',
             'citizen': ''  # No code required for citizens
         }
         

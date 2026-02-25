@@ -93,10 +93,10 @@ Operations Dashboard - SmartCity EMS{% endblock %} {% block dashboard_content %}
                 <td>{{ emergency.created_at|date:"h:i A" }}</td>
                 <td>
                   <a
-                    href="{% url 'emergency:assign_vehicle' emergency.id %}"
+                    href="{% url 'emergency:assign_team' emergency.id %}"
                     class="btn btn-sm btn-primary"
                   >
-                    <i class="fas fa-truck-medical me-1"></i>Assign Vehicle
+                    <i class="fas fa-users me-1"></i>Assign Team
                   </a>
                 </td>
               </tr>
@@ -134,6 +134,14 @@ Operations Dashboard - SmartCity EMS{% endblock %} {% block dashboard_content %}
           </div>
           <div class="col-md-6">
             <a
+              href="{% url 'emergency:manage_teams' %}"
+              class="btn btn-info w-100 py-3"
+            >
+              <i class="fas fa-users me-2"></i>Manage Teams
+            </a>
+          </div>
+          <div class="col-md-6">
+            <a
               href="{% url 'emergency:manage_vehicles' %}"
               class="btn btn-success w-100 py-3"
             >
@@ -147,82 +155,75 @@ Operations Dashboard - SmartCity EMS{% endblock %} {% block dashboard_content %}
 </div>
 
 <div class="row">
-  <div class="col-12 mb-4">
-    <div class="card">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <span><i class="fas fa-truck-medical me-2"></i>Active Dispatches</span>
-        <span class="badge bg-info">{{ total_active }} Active</span>
-      </div>
-      <div class="card-body">
-        {% if active_dispatches %}
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-light">
-              <tr>
-                <th>Dispatch ID</th>
-                <th>Emergency ID</th>
-                <th>Vehicle</th>
-                <th>Driver</th>
-                <th>Status</th>
-                <th>Assigned</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for dispatch in active_dispatches %}
-              <tr>
-                <td><strong>#{{ dispatch.id }}</strong></td>
-                <td>
-                  <a
-                    href="{% url 'emergency:detail' dispatch.emergency_request.id %}"
-                    >#{{ dispatch.emergency_request.id }}</a
-                  >
-                </td>
-                <td>
-                  <i class="fas fa-car me-1"></i>
-                  {{ dispatch.vehicle.vehicle_number }}
-                  <br />
-                  <small class="text-muted"
-                    >{{ dispatch.vehicle.get_vehicle_type_display }}</small
-                  >
-                </td>
-                <td>{{ dispatch.vehicle.driver_name }}</td>
-                <td>
-                  {% if dispatch.status == 'assigned' %}
-                  <span class="badge bg-primary">Assigned</span>
-                  {% elif dispatch.status == 'en_route' %}
-                  <span class="badge bg-info">En Route</span>
-                  {% elif dispatch.status == 'on_scene' %}
-                  <span class="badge bg-warning">On Scene</span>
-                  {% else %}
-                  <span class="badge bg-success">Completed</span>
-                  {% endif %}
-                </td>
-                <td>{{ dispatch.assigned_at|date:"h:i A" }}</td>
-                <td>
-                  <a
-                    href="{% url 'emergency:update_dispatch_status' dispatch.id %}"
-                    class="btn btn-sm btn-outline-primary"
-                  >
-                    <i class="fas fa-edit me-1"></i>Update
-                  </a>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-truck-medical me-2"></i>Active Team Assignments</span>
+                <span class="badge bg-info">{{ active_assignments.count }} Active</span>
+            </div>
+            <div class="card-body">
+                {% if active_assignments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Assignment ID</th>
+                                <th>Emergency ID</th>
+                                <th>Team</th>
+                                <th>Team Leader</th>
+                                <th>Status</th>
+                                <th>Assigned</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in active_assignments %}
+                            <tr>
+                                <td><strong>#{{ assignment.id }}</strong></td>
+                                <td>
+                                    <a href="{% url 'emergency:detail' assignment.emergency_request.id %}">
+                                        #{{ assignment.emergency_request.id }}
+                                    </a>
+                                </td>
+                                <td><strong>{{ assignment.team.name }}</strong></td>
+                                <td>
+                                    {% if assignment.team.team_leader %}
+                                        {{ assignment.team.team_leader.username }}
+                                    {% else %}
+                                        <span class="text-muted">No Leader</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assignment.status == 'assigned' %}
+                                    <span class="badge bg-primary">Assigned</span>
+                                    {% elif assignment.status == 'en_route' %}
+                                    <span class="badge bg-info">En Route</span>
+                                    {% elif assignment.status == 'on_scene' %}
+                                    <span class="badge bg-warning">On Scene</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ assignment.assigned_at|date:"h:i A" }}</td>
+                                <td>
+                                    <a href="{% url 'emergency:update_team_status' assignment.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit me-1"></i>Update
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-truck-medical fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Active Team Assignments</h5>
+                    <p class="text-muted">No teams are currently dispatched.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
-        {% else %}
-        <div class="text-center py-4">
-          <i class="fas fa-truck-medical fa-4x text-muted mb-3"></i>
-          <h5 class="text-muted">No Active Dispatches</h5>
-          <p class="text-muted">No vehicles are currently dispatched.</p>
-        </div>
-        {% endif %}
-      </div>
     </div>
-  </div>
 </div>
 {% endblock %}

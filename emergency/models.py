@@ -117,3 +117,66 @@ class DispatchRecord(models.Model):
     
     def __str__(self):
         return f"Dispatch #{self.id} for Emergency #{self.emergency_request.id}"
+
+class EmergencyTeam(models.Model):
+    """Emergency response team with multiple workers and vehicles"""
+    TEAM_TYPE_CHOICES = [
+        ('medical', 'Medical Emergency Response'),
+        ('fire', 'Fire Response'),
+        ('police', 'Police Response'),
+        ('search_rescue', 'Search & Rescue'),
+        ('hazardous_materials', 'Hazardous Materials'),
+        ('water', 'Water Supply Response'),
+        ('electricity', 'Electricity Response'),
+        ('road_maintenance', 'Road Maintenance'),
+        ('garbage', 'Garbage Management'),
+        ('public_works', 'Public Works'),
+        ('special_operations', 'Special Operations'),
+    ]
+    
+    name = models.CharField(max_length=100)
+    team_type = models.CharField(max_length=50, choices=TEAM_TYPE_CHOICES, default='medical')
+    team_size = models.IntegerField(default=0)  # Will be calculated manually
+    workers = models.ManyToManyField('accounts.User', limit_choices_to={'role': 'worker'}, related_name='teams')
+    vehicles = models.ManyToManyField('EmergencyVehicle', related_name='teams')
+    team_leader = models.ForeignKey(
+        'accounts.User', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name='led_teams',
+        limit_choices_to={'role': 'worker'},
+        blank=True
+    )
+    equipment = models.TextField(blank=True)
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Team {self.name} ({self.team_size} members)"
+    
+    class Meta:
+        ordering = ['name']
+    
+    def save(self, *args, **kwargs):
+        """Save team without accessing M2M relationships during initial save"""
+        # Only calculate team_size if the instance already exists in DB (has ID)
+        if self.pk:
+            self.team_size = self.workers.count()
+        super().save(*args, **kwargs)
+
+    
+class TeamAssignment(models.Model):
+    """Team assigned to an emergency (replaces individual dispatch)"""
+    emergency_request = models.ForeignKey('EmergencyRequest', on_delete=models.CASCADE, related_name='team_assignments')
+    team = models.ForeignKey('EmergencyTeam', on_delete=models.PROTECT)
+    assigned_by = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='team_assignments_made')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ('assigned', 'Assigned'),
+        ('en_route', 'En Route'),
+        ('on_scene', 'On Scene'),
+        ('completed', 'Completed'),
+    ], default='assigned')
+    
+    def __str__(self):
+        return f"Team {self.team.name} → Emergency #{self.emergency_request.id}"

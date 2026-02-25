@@ -13,11 +13,11 @@ def dashboard_redirect(request):
     elif role == 'government_authority':
         return redirect('dashboard:gov')
     elif role == 'utility_officer':
-        return redirect('dashboard:utility')
+        return redirect('utilities:officer_dashboard')
     elif role == 'emergency_operator':
-        return redirect('emergency:operator_dashboard')  # DIRECT REDIRECT
-    elif role == 'vehicle_driver':
-        return redirect('dashboard:driver')
+        return redirect('emergency:operator_dashboard')
+    elif role == 'worker':
+        return redirect('dashboard:worker')
     else:
         return redirect('accounts:profile')
 
@@ -117,3 +117,16 @@ def driver_dashboard(request):
         'total_distance': '0 km',
     }
     return render(request, 'dashboard/driver.html', context)
+
+
+@login_required
+def worker_dashboard(request):
+    """Worker dashboard - show team assignments"""
+    if request.user.role != 'worker':
+        return redirect('dashboard:dashboard')
+    
+    context = {
+        'title': 'Worker Dashboard',
+        'user': request.user,
+    }
+    return render(request, 'dashboard/worker.html', context)

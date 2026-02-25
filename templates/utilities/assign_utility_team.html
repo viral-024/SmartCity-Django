@@ -1,0 +1,159 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Assign Utility Team - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-users me-2"></i>Assign Team to Complaint</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'utilities:officer_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Assign Team</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-file-alt me-2"></i>Complaint Details
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Complaint ID:</strong> {{ complaint.complaint_id }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Type:</strong> 
+                        <i class="fas fa-{{ complaint.utility_type.icon }} me-1"></i>
+                        {{ complaint.utility_type.name }}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Priority:</strong>
+                    {% if complaint.priority == 'high' %}
+                    <span class="badge bg-danger fs-6">High</span>
+                    {% elif complaint.priority == 'medium' %}
+                    <span class="badge bg-warning fs-6">Medium</span>
+                    {% else %}
+                    <span class="badge bg-success fs-6">Low</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Location:</strong><br>
+                    {{ complaint.address }}<br>
+                    {% if complaint.landmark %}
+                    <small class="text-muted"><i class="fas fa-thumbtack me-1"></i>{{ complaint.landmark }}</small>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Title:</strong> {{ complaint.title }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Description:</strong><br>
+                    <p class="border p-3 rounded">{{ complaint.description }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-users me-2"></i>Available Teams
+            </div>
+            <div class="card-body">
+                {% if available_teams %}
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Team Name</th>
+                                    <th>Size</th>
+                                    <th>Leader</th>
+                                    <th>Equipment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for team in available_teams %}
+                                <tr>
+                                    <td>
+                                        <input type="radio" name="team_id" value="{{ team.id }}" required>
+                                    </td>
+                                    <td><strong>{{ team.name }}</strong></td>
+                                    <td>{{ team.team_size }}</td>
+                                    <td>
+                                        {% if team.team_leader %}
+                                        {{ team.team_leader.username }}
+                                        {% else %}
+                                        <span class="text-muted">No Leader</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if team.equipment %}
+                                        <small>{{ team.equipment|truncatewords:5 }}</small>
+                                        {% else %}
+                                        <span class="text-muted">Standard Equipment</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'utilities:officer_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i>Assign Selected Team
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>No Available Teams!</strong><br>
+                    All utility teams are currently assigned. Please wait for a team to become available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Assignment Guidelines
+            </div>
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Team Selection Criteria:</h6>
+                <ul class="small">
+                    <li><i class="fas fa-check text-success me-2"></i>Choose nearest available team</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Match team specialization to complaint type</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Consider team size for job complexity</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="fw-bold mb-3">Team Sizes:</h6>
+                <ul class="small">
+                    <li><span class="badge bg-danger me-2">High</span>4-6 members</li>
+                    <li><span class="badge bg-warning me-2">Medium</span>2-4 members</li>
+                    <li><span class="badge bg-success me-2">Low</span>2-3 members</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

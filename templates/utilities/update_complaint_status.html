@@ -5,11 +5,10 @@
 {% block dashboard_content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h2><i class="fas fa-edit me-2"></i>Update Complaint Status</h2>
+        <h2><i class="fas fa-sync-alt me-2"></i>Update Complaint Status</h2>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'dashboard:utility' %}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'utilities:officer_dashboard' %}">My Complaints</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'utilities:officer_dashboard' %}">Dashboard</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Update Status</li>
             </ol>
         </nav>
@@ -20,47 +19,49 @@
     <div class="col-lg-8 mb-4">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <i class="fas fa-file-alt me-2"></i>Complaint Information
+                <i class="fas fa-tools me-2"></i>Complaint Assignment Information
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <strong>Complaint ID:</strong> {{ complaint.complaint_id }}
+                    <strong>Assignment ID:</strong> #{{ assignment.id }}
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Type:</strong> 
-                    <i class="fas fa-{{ complaint.utility_type.icon }} me-1"></i>
-                    {{ complaint.utility_type.name }}
+                    <strong>Complaint ID:</strong> 
+                    <a href="{% url 'utilities:detail' assignment.complaint.id %}">
+                        {{ assignment.complaint.complaint_id }}
+                    </a>
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Title:</strong> {{ complaint.title }}
+                    <strong>Team:</strong> {{ assignment.team.name }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Team Leader:</strong> {{ assignment.team.team_leader.username }}
                 </div>
                 
                 <div class="mb-3">
                     <strong>Current Status:</strong>
-                    {% if complaint.status == 'assigned' %}
+                    {% if assignment.status == 'assigned' %}
                     <span class="badge bg-primary fs-6">Assigned</span>
-                    {% elif complaint.status == 'in_progress' %}
+                    {% elif assignment.status == 'in_progress' %}
                     <span class="badge bg-info fs-6">In Progress</span>
-                    {% elif complaint.status == 'resolved' %}
-                    <span class="badge bg-success fs-6">Resolved</span>
-                    {% elif complaint.status == 'escalated' %}
-                    <span class="badge bg-warning fs-6">Escalated</span>
                     {% else %}
-                    <span class="badge bg-danger fs-6">Rejected</span>
+                    <span class="badge bg-success fs-6">Resolved</span>
                     {% endif %}
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Submitted:</strong> {{ complaint.created_at|date:"M d, Y" }} at {{ complaint.created_at|time:"h:i A" }}
+                    <strong>Assigned At:</strong> {{ assignment.assigned_at|date:"M d, Y" }} 
+                    at {{ assignment.assigned_at|time:"h:i A" }}
                 </div>
             </div>
         </div>
         
         <div class="card mt-4">
             <div class="card-header">
-                <i class="fas fa-sync-alt me-2"></i>Update Status
+                <i class="fas fa-edit me-2"></i>Update Status
             </div>
             <div class="card-body">
                 <form method="post">
@@ -70,55 +71,35 @@
                         <label class="form-label"><strong>Select New Status:</strong></label>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="status" id="status_assigned" 
-                                   value="assigned" {% if complaint.status == 'assigned' %}checked{% endif %}>
+                                   value="assigned" {% if assignment.status == 'assigned' %}checked{% endif %}>
                             <label class="form-check-label" for="status_assigned">
                                 <span class="badge bg-primary">Assigned</span>
-                                <br><small class="text-muted">Complaint assigned but work not started</small>
+                                <br><small class="text-muted">Team assigned to complaint</small>
                             </label>
                         </div>
                         
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="status" id="status_in_progress" 
-                                   value="in_progress" {% if complaint.status == 'in_progress' %}checked{% endif %}>
+                                   value="in_progress" {% if assignment.status == 'in_progress' %}checked{% endif %}>
                             <label class="form-check-label" for="status_in_progress">
                                 <span class="badge bg-info">In Progress</span>
-                                <br><small class="text-muted">Work is currently in progress</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="status" id="status_resolved" 
-                                   value="resolved" {% if complaint.status == 'resolved' %}checked{% endif %}>
-                            <label class="form-check-label" for="status_resolved">
-                                <span class="badge bg-success">Resolved</span>
-                                <br><small class="text-muted">Issue has been resolved</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="status" id="status_escalated" 
-                                   value="escalated" {% if complaint.status == 'escalated' %}checked{% endif %}>
-                            <label class="form-check-label" for="status_escalated">
-                                <span class="badge bg-warning">Escalated</span>
-                                <br><small class="text-muted">Issue escalated to higher authority</small>
+                                <br><small class="text-muted">Team is working on complaint</small>
                             </label>
                         </div>
                         
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="status" id="status_rejected" 
-                                   value="rejected" {% if complaint.status == 'rejected' %}checked{% endif %}>
-                            <label class="form-check-label" for="status_rejected">
-                                <span class="badge bg-danger">Rejected</span>
-                                <br><small class="text-muted">Complaint rejected (invalid/unactionable)</small>
+                            <input class="form-check-input" type="radio" name="status" id="status_resolved" 
+                                   value="resolved" {% if assignment.status == 'resolved' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_resolved">
+                                <span class="badge bg-success">Resolved</span>
+                                <br><small class="text-muted">Complaint has been resolved</small>
                             </label>
                         </div>
                     </div>
                     
-                    <div class="mb-4">
-                        <label class="form-label"><strong>Update Notes (Optional):</strong></label>
-                        <textarea name="notes" class="form-control" rows="4" 
-                                  placeholder="Add notes about the status update or resolution details..."></textarea>
-                        <small class="text-muted">These notes will be visible to the citizen who reported this complaint.</small>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> When you mark a complaint as "Resolved", the team will automatically become available for new assignments.
                     </div>
                     
                     <div class="d-flex gap-2">

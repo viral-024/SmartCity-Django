@@ -1,14 +1,14 @@
 {% extends 'dashboard/base_dashboard.html' %}
 
-{% block title %}Update Dispatch Status - SmartCity EMS{% endblock %}
+{% block title %}Update Team Status - SmartCity EMS{% endblock %}
 
 {% block dashboard_content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h2><i class="fas fa-sync-alt me-2"></i>Update Dispatch Status</h2>
+        <h2><i class="fas fa-sync-alt me-2"></i>Update Team Status</h2>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'emergency:operator_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'utilities:officer_dashboard' %}">Dashboard</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Update Status</li>
             </ol>
         </nav>
@@ -19,39 +19,41 @@
     <div class="col-lg-8 mb-4">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <i class="fas fa-truck-medical me-2"></i>Dispatch Information
+                <i class="fas fa-users me-2"></i>Team Assignment Information
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <strong>Dispatch ID:</strong> #{{ assignment.id }}
+                    <strong>Assignment ID:</strong> #{{ assignment.id }}
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Emergency ID:</strong> 
-                    <a href="{% url 'emergency:detail' assignment.emergency_request.id %}">
-                        #{{ assignment.emergency_request.id }}
+                    <strong>Complaint ID:</strong> 
+                    <a href="{% url 'utilities:detail' assignment.complaint.complaint_id %}">
+                        {{ assignment.complaint.complaint_id }}
                     </a>
                 </div>
                 
                 <div class="mb-3">
                     <strong>Team:</strong> {{ assignment.team.name }}
-                    ({{ assignment.team.get_vehicle_type_display }})
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Team Leader:</strong> {{ assignment.team.team_leader.username }}
+                    <strong>Team Leader:</strong> 
+                    {% if assignment.team.team_leader %}
+                        {{ assignment.team.team_leader.username }}
+                    {% else %}
+                        <span class="text-muted">Not assigned</span>
+                    {% endif %}
                 </div>
                 
                 <div class="mb-3">
                     <strong>Current Status:</strong>
                     {% if assignment.status == 'assigned' %}
                     <span class="badge bg-primary fs-6">Assigned</span>
-                    {% elif assignment.status == 'en_route' %}
-                    <span class="badge bg-info fs-6">En Route</span>
-                    {% elif assignment.status == 'on_scene' %}
-                    <span class="badge bg-warning fs-6">On Scene</span>
+                    {% elif assignment.status == 'in_progress' %}
+                    <span class="badge bg-info fs-6">In Progress</span>
                     {% else %}
-                    <span class="badge bg-success fs-6">Completed</span>
+                    <span class="badge bg-success fs-6">Resolved</span>
                     {% endif %}
                 </div>
                 
@@ -77,45 +79,36 @@
                                    value="assigned" {% if assignment.status == 'assigned' %}checked{% endif %}>
                             <label class="form-check-label" for="status_assigned">
                                 <span class="badge bg-primary">Assigned</span>
-                                <br><small class="text-muted">Team assigned but not yet dispatched</small>
+                                <br><small class="text-muted">Team assigned to complaint</small>
                             </label>
                         </div>
                         
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="status" id="status_en_route" 
-                                   value="en_route" {% if assignment.status == 'en_route' %}checked{% endif %}>
-                            <label class="form-check-label" for="status_en_route">
-                                <span class="badge bg-info">En Route</span>
-                                <br><small class="text-muted">Team traveling to emergency location</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="status" id="status_on_scene" 
-                                   value="on_scene" {% if assignment.status == 'on_scene' %}checked{% endif %}>
-                            <label class="form-check-label" for="status_on_scene">
-                                <span class="badge bg-warning">On Scene</span>
-                                <br><small class="text-muted">Team has arrived at emergency location</small>
+                            <input class="form-check-input" type="radio" name="status" id="status_in_progress" 
+                                   value="in_progress" {% if assignment.status == 'in_progress' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_in_progress">
+                                <span class="badge bg-info">In Progress</span>
+                                <br><small class="text-muted">Team is working on complaint</small>
                             </label>
                         </div>
                         
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="status" id="status_completed" 
-                                   value="completed" {% if assignment.status == 'completed' %}checked{% endif %}>
-                            <label class="form-check-label" for="status_completed">
-                                <span class="badge bg-success">Completed</span>
-                                <br><small class="text-muted">Emergency resolved, team returning</small>
+                            <input class="form-check-input" type="radio" name="status" id="status_resolved" 
+                                   value="resolved" {% if assignment.status == 'resolved' %}checked{% endif %}>
+                            <label class="form-check-label" for="status_resolved">
+                                <span class="badge bg-success">Resolved</span>
+                                <br><small class="text-muted">Complaint has been resolved</small>
                             </label>
                         </div>
                     </div>
                     
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> When you mark a dispatch as "Completed", the team will automatically become available for new assignments.
+                        <strong>Note:</strong> When you mark status as "Resolved", the team will automatically become available for new assignments.
                     </div>
                     
                     <div class="d-flex gap-2">
-                        <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-secondary">
+                        <a href="{% url 'utilities:officer_dashboard' %}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-1"></i>Cancel
                         </a>
                         <button type="submit" class="btn btn-primary">

@@ -122,3 +122,44 @@ class ComplaintUpdate(models.Model):
     
     def __str__(self):
         return f"Update for {self.complaint.complaint_id}"
+
+
+
+class UtilityTeam(models.Model):
+    """Utility repair team with multiple workers"""
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    team_size = models.IntegerField(default=3)
+    workers = models.ManyToManyField('accounts.User', limit_choices_to={'role': 'worker'})
+    equipment = models.TextField(blank=True)
+    team_leader = models.ForeignKey(
+        'accounts.User', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name='led_utility_teams',
+        limit_choices_to={'role': 'worker'}
+    )
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Utility Team {self.name} ({self.team_size} members)"
+    
+    class Meta:
+        ordering = ['name']
+
+
+class UtilityTeamAssignment(models.Model):
+    """Team assigned to a utility complaint"""
+    complaint = models.ForeignKey('Complaint', on_delete=models.CASCADE, related_name='team_assignments')
+    team = models.ForeignKey('UtilityTeam', on_delete=models.PROTECT)
+    assigned_by = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='utility_assignments_made')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ('assigned', 'Assigned'),
+        ('in_progress', 'In Progress'),
+        ('resolved', 'Resolved'),
+    ], default='assigned')
+    
+    def __str__(self):
+        return f"Team {self.team.name} → Complaint {self.complaint.complaint_id}"

@@ -1,10 +1,15 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from django.db.models import Q
-from django.utils import timezone 
-from .models import Complaint, UtilityType, ComplaintUpdate
+from .models import (
+    Complaint, UtilityType, ComplaintUpdate,
+    UtilityTeam, UtilityTeamAssignment  # ← Team-based models
+)
 from .forms import ComplaintForm
+from accounts.models import User
+
 
 @login_required
 def citizen_submit_complaint(request):
@@ -95,34 +100,32 @@ def complaint_detail(request, complaint_id):
 
 
 @login_required
-@login_required
 def officer_dashboard(request):
-    """Utility officer dashboard - view assigned complaints"""
+    """Utility officer dashboard - view team assignments (NOT self-assignments)"""
     if request.user.role != 'utility_officer':
         messages.error(request, 'Access denied. Only utility officers can access this page.')
         return redirect('dashboard:dashboard')
     
-    # Get complaints assigned to this officer (EXCLUDE resolved complaints)
+    # Get complaints assigned to teams (not to individual officers)
     assigned_complaints = Complaint.objects.filter(
-        assigned_officer=request.user,
-        status__in=['pending', 'assigned', 'in_progress', 'escalated']
+        status__in=['assigned', 'in_progress']
     ).order_by('-created_at')
     
-    # Get pending complaints (not assigned to anyone)
+    # Get pending complaints (not assigned to any team)
     pending_complaints = Complaint.objects.filter(
-        status='pending',
-        assigned_officer__isnull=True
+        status='pending'
     ).order_by('-created_at')
     
-    # Get statistics
+    # Get statistics (INT values - no .count() calls needed later)
     total_assigned = assigned_complaints.count()
     total_pending = pending_complaints.count()
     in_progress = assigned_complaints.filter(status='in_progress').count()
     resolved_today = Complaint.objects.filter(
-        assigned_officer=request.user,
         status='resolved',
         resolved_at__date=timezone.now().date()
     ).count()
+    total_teams = UtilityTeam.objects.count()
+    available_teams = UtilityTeam.objects.filter(is_available=True).count()
     
     context = {
         'assigned_complaints': assigned_complaints,
@@ -131,66 +134,82 @@ def officer_dashboard(request):
         'total_pending': total_pending,
         'in_progress': in_progress,
         'resolved_today': resolved_today,
+        'total_teams': total_teams,
+        'available_teams': available_teams,
     }
     
     return render(request, 'utilities/officer_dashboard.html', context)
 
+
 @login_required
-def assign_complaint(request, complaint_id):
-    """Assign complaint to an officer"""
+def assign_utility_team(request, complaint_id):
+    """Assign a TEAM to a utility complaint (replaces self-assignment)"""
     if request.user.role != 'utility_officer':
         messages.error(request, 'Access denied.')
         return redirect('dashboard:dashboard')
     
     complaint = Complaint.objects.get(id=complaint_id)
+    available_teams = UtilityTeam.objects.filter(is_available=True)
     
     if request.method == 'POST':
-        # Assign to current officer
-        complaint.assigned_officer = request.user
+        team_id = request.POST.get('team_id')
+        team = UtilityTeam.objects.get(id=team_id)
+        
+        # Create team assignment
+        UtilityTeamAssignment.objects.create(
+            complaint=complaint,
+            team=team,
+            assigned_by=request.user,
+            status='assigned'
+        )
+        
+        # Update complaint status
         complaint.status = 'assigned'
+        complaint.assigned_officer = request.user  # Track which officer made assignment
         complaint.save()
         
-        messages.success(request, f'Complaint {complaint.complaint_id} assigned to you successfully!')
+        # Mark team as unavailable
+        team.is_available = False
+        team.save()
+        
+        messages.success(request, f'Team {team.name} assigned successfully!')
         return redirect('utilities:officer_dashboard')
     
-    return render(request, 'utilities/assign_complaint.html', {
+    return render(request, 'utilities/assign_utility_team.html', {
         'complaint': complaint,
+        'available_teams': available_teams,
     })
 
 
 @login_required
-def update_complaint_status(request, complaint_id):
-    """Update complaint status and add notes"""
+def update_team_assignment_status(request, assignment_id):
+    """Update utility team assignment status (replaces individual complaint status update)"""
     if request.user.role != 'utility_officer':
         messages.error(request, 'Access denied.')
         return redirect('dashboard:dashboard')
     
-    complaint = Complaint.objects.get(id=complaint_id)
-    
-    # Verify officer is assigned to this complaint
-    if complaint.assigned_officer != request.user:
-        messages.error(request, 'You are not assigned to this complaint.')
-        return redirect('utilities:officer_dashboard')
+    assignment = UtilityTeamAssignment.objects.get(id=assignment_id)
     
     if request.method == 'POST':
         status = request.POST.get('status')
-        notes = request.POST.get('notes', '')
+        
+        # Update assignment status
+        assignment.status = status
+        assignment.save()
         
         # Update complaint status
-        complaint.status = status
-        complaint.save()
+        complaint_status = 'resolved' if status == 'resolved' else status
+        assignment.complaint.status = complaint_status
+        assignment.complaint.save()
         
-        # Add update note if provided
-        if notes:
-            ComplaintUpdate.objects.create(
-                complaint=complaint,
-                updated_by=request.user,
-                update_text=notes
-            )
+        # If resolved, mark team as available
+        if status == 'resolved':
+            assignment.team.is_available = True
+            assignment.team.save()
         
-        messages.success(request, 'Complaint status updated successfully!')
+        messages.success(request, f'Team status updated to {status}!')
         return redirect('utilities:officer_dashboard')
     
-    return render(request, 'utilities/update_complaint_status.html', {
-        'complaint': complaint,
+    return render(request, 'utilities/update_team_assignment_status.html', {
+        'assignment': assignment,
     })

@@ -1,0 +1,164 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Assign Team - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-users me-2"></i>Assign Team to Emergency</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'emergency:operator_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Assign Team</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-file-alt me-2"></i>Emergency Details
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Emergency ID:</strong> #{{ emergency.id }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Type:</strong> 
+                        <i class="fas fa-{{ emergency.emergency_type.icon }} me-1"></i>
+                        {{ emergency.emergency_type.name }}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Priority:</strong>
+                    {% if emergency.priority == 'critical' %}
+                    <span class="badge bg-danger fs-6">Critical</span>
+                    {% elif emergency.priority == 'high' %}
+                    <span class="badge bg-warning fs-6">High</span>
+                    {% elif emergency.priority == 'medium' %}
+                    <span class="badge bg-info fs-6">Medium</span>
+                    {% else %}
+                    <span class="badge bg-success fs-6">Low</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Location:</strong><br>
+                    {{ emergency.address }}<br>
+                    {% if emergency.landmark %}
+                    <small class="text-muted"><i class="fas fa-thumbtack me-1"></i>{{ emergency.landmark }}</small>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Contact:</strong> {{ emergency.contact_number }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Description:</strong><br>
+                    <p class="border p-3 rounded">{{ emergency.description }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-users me-2"></i>Available Teams
+            </div>
+            <div class="card-body">
+                {% if available_teams %}
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Team Name</th>
+                                    <th>Size</th>
+                                    <th>Vehicles</th>
+                                    <th>Leader</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for team in available_teams %}
+                                <tr>
+                                    <td>
+                                        <input type="radio" name="team_id" value="{{ team.id }}" required>
+                                    </td>
+                                    <td><strong>{{ team.name }}</strong></td>
+                                    <td>{{ team.team_size }}</td>
+                                    <td>
+                                        {% for vehicle in team.vehicles.all %}
+                                        <span class="badge bg-primary">{{ vehicle.vehicle_number }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% if team.team_leader %}
+                                        {{ team.team_leader.username }}
+                                        {% else %}
+                                        <span class="text-muted">No Leader</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i>Assign Selected Team
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>No Available Teams!</strong><br>
+                    All teams are currently assigned. Please wait for a team to become available or create new teams.
+                </div>
+                <a href="{% url 'emergency:manage_teams' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create New Team
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Assignment Guidelines
+            </div>
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Team Selection Criteria:</h6>
+                <ul class="small">
+                    <li><i class="fas fa-check text-success me-2"></i>Choose nearest available team</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Match team specialization to emergency</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Consider team size for emergency severity</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Check vehicle availability</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="fw-bold mb-3">Team Sizes:</h6>
+                <ul class="small">
+                    <li><span class="badge bg-danger me-2">Critical</span>8-10 members</li>
+                    <li><span class="badge bg-warning me-2">High</span>5-7 members</li>
+                    <li><span class="badge bg-info me-2">Medium</span>3-5 members</li>
+                    <li><span class="badge bg-success me-2">Low</span>2-3 members</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

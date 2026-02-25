@@ -9,7 +9,7 @@
     <i class="fas fa-info-circle me-2"></i>
     <strong>Login Instructions:</strong><br>
     • <strong>Citizens:</strong> Use your username and password (no access code)<br>
-    • <strong>Staff:</strong> Enter your access code (Gov: 1111, Utility: 2222, Emergency: 3333, Driver: 4444)
+    • <strong>Staff:</strong> Enter your access code (Gov: 1111, Utility: 2222, Emergency: 3333, Worker: 4444)
 </div>
 
 <!-- Staff Credentials Table - CENTERED -->
@@ -36,8 +36,8 @@
                     <td>emergency123</td>
                 </tr>
                 <tr>
-                    <td>driver1</td>
-                    <td>driver123</td>
+                    <td>worker1</td>  <!-- CHANGED FROM driver1 -->
+                    <td>worker123</td> <!-- CHANGED FROM driver123 -->
                 </tr>
             </tbody>
         </table>
@@ -75,8 +75,8 @@
             <option value="emergency_operator" {% if role == 'emergency_operator' %}selected{% endif %}>
                 🚨 Emergency Operator
             </option>
-            <option value="vehicle_driver" {% if role == 'vehicle_driver' %}selected{% endif %}>
-                🚑 Vehicle Driver
+            <option value="worker" {% if role == 'worker' %}selected{% endif %}>  <!-- CHANGED FROM vehicle_driver -->
+                👷 Worker
             </option>
         </select>
     </div>
@@ -85,7 +85,7 @@
         <label class="form-label"><i class="fas fa-key me-2"></i>Access Code</label>
         <input type="password" name="access_code" class="form-control" 
                placeholder="Enter access code">
-        <small class="text-muted">Gov: 1111 | Utility: 2222 | Emergency: 3333 | Driver: 4444</small>
+        <small class="text-muted">Gov: 1111 | Utility: 2222 | Emergency: 3333 | Worker: 4444</small> <!-- CHANGED FROM Driver -->
     </div>
     
     <button type="submit" class="btn btn-primary mb-3 w-100">

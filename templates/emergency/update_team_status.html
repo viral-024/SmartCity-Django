@@ -1,11 +1,11 @@
 {% extends 'dashboard/base_dashboard.html' %}
 
-{% block title %}Update Dispatch Status - SmartCity EMS{% endblock %}
+{% block title %}Update Team Status - SmartCity EMS{% endblock %}
 
 {% block dashboard_content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h2><i class="fas fa-sync-alt me-2"></i>Update Dispatch Status</h2>
+        <h2><i class="fas fa-sync-alt me-2"></i>Update Team Status</h2>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'emergency:operator_dashboard' %}">Dashboard</a></li>
@@ -19,11 +19,11 @@
     <div class="col-lg-8 mb-4">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <i class="fas fa-truck-medical me-2"></i>Dispatch Information
+                <i class="fas fa-users me-2"></i>Team Assignment Information
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <strong>Dispatch ID:</strong> #{{ assignment.id }}
+                    <strong>Assignment ID:</strong> #{{ assignment.id }}
                 </div>
                 
                 <div class="mb-3">
@@ -35,11 +35,15 @@
                 
                 <div class="mb-3">
                     <strong>Team:</strong> {{ assignment.team.name }}
-                    ({{ assignment.team.get_vehicle_type_display }})
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Team Leader:</strong> {{ assignment.team.team_leader.username }}
+                    <strong>Team Leader:</strong> 
+                    {% if assignment.team.team_leader %}
+                        {{ assignment.team.team_leader.username }}
+                    {% else %}
+                        <span class="text-muted">Not assigned</span>
+                    {% endif %}
                 </div>
                 
                 <div class="mb-3">
@@ -111,7 +115,7 @@
                     
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> When you mark a dispatch as "Completed", the team will automatically become available for new assignments.
+                        <strong>Note:</strong> When you mark status as "Completed", the team will automatically become available for new assignments.
                     </div>
                     
                     <div class="d-flex gap-2">
