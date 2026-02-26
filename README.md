@@ -57,31 +57,31 @@ The system supports multiple user roles:
 ---
 Follow these steps to set up and run the project locally:
 
-# 1. Clone the repository
+1. Clone the repository
 git clone https://github.com/your-username/SmartCity-Django.git
 cd SmartCity-Django
 
-# 2. Create and activate virtual environment
-# Windows:
+2. Create and activate virtual environment
+Windows:
 python -m venv venv
 venv\Scripts\activate
 
-# macOS/Linux:
+macOS/Linux:
 python3 -m venv venv
 source venv/bin/activate
 
-# 3. Install dependencies
+3. Install dependencies
 pip install django
 
-# 4. Apply database migrations
+4. Apply database migrations
 python manage.py migrate
 
-# 5. Create sample data (workers, vehicles, teams)
+5. Create sample data (workers, vehicles, teams)
 python manage.py create_sample_workers
 python manage.py create_sample_vehicles
 python manage.py create_test_users
 
-# 6. Start development server
+6. Start development server
 python manage.py runserver
 
 🧭 System Architecture :

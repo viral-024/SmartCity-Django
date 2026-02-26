@@ -17,18 +17,17 @@ class Command(BaseCommand):
 
         # Create sample workers
         workers_data = [
-            {'username': 'worker21', 'phone': '9876543210', 'name': 'John Smith'},
-            {'username': 'worker22', 'phone': '9876543211', 'name': 'Sarah Johnson'},
-            {'username': 'worker23', 'phone': '9876543212', 'name': 'Mike Brown'},
-            {'username': 'worker24', 'phone': '9876543213', 'name': 'David Wilson'},
-            {'username': 'worker25', 'phone': '9876543214', 'name': 'Emma Davis'},
-            {'username': 'worker26', 'phone': '9876543215', 'name': 'Robert Davis'},
-            {'username': 'worker27', 'phone': '9876543216', 'name': 'James Miller'},
-            {'username': 'worker28', 'phone': '9876543217', 'name': 'Tom Anderson'},
-            {'username': 'worker29', 'phone': '9876543218', 'name': 'Lisa Taylor'},
-            {'username': 'worker30', 'phone': '9876543219', 'name': 'Chris Lee'},
+            {'username': 'worker1', 'phone': '9876543210', 'name': 'John Smith'},
+            {'username': 'worker2', 'phone': '9876543211', 'name': 'Sarah Johnson'},
+            {'username': 'worker3', 'phone': '9876543212', 'name': 'Mike Brown'},
+            {'username': 'worker4', 'phone': '9876543213', 'name': 'David Wilson'},
+            {'username': 'worker5', 'phone': '9876543214', 'name': 'Emma Davis'},
+            {'username': 'worker6', 'phone': '9876543215', 'name': 'Robert Davis'},
+            {'username': 'worker7', 'phone': '9876543216', 'name': 'James Miller'},
+            {'username': 'worker8', 'phone': '9876543217', 'name': 'Tom Anderson'},
+            {'username': 'worker9', 'phone': '9876543218', 'name': 'Lisa Taylor'},
+            {'username': 'worker10', 'phone': '9876543219', 'name': 'Chris Lee'},
         ]
-
         created_count = 0
         for worker_data in workers_data:
             username = worker_data['username']
