@@ -1,0 +1,134 @@
+{% extends 'team_admin/base_team_admin.html' %}
+
+{% block title %}Create Utility Team - SmartCity EMS{% endblock %}
+
+{% block team_admin_content %}
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <i class="fas fa-tools me-2"></i>Create Utility Response Team
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Team Name *</label>
+                        <input type="text" name="team_name" class="form-control" 
+                               placeholder="e.g., Water Supply Team Alpha" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Team Type *</label>
+                        <select name="team_type" class="form-control" required>
+                            {% for type in TEAM_TYPE_CHOICES %}
+                            <option value="{{ type.0 }}">{{ type.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Team Members (Select Multiple) *</label>
+                        <select name="workers" class="form-control" multiple size="5" required>
+                            {% for worker in available_workers %}
+                            <option value="{{ worker.id }}">{{ worker.username }} - {{ worker.phone_number }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple workers</small>
+                    </div>
+                    
+                    <div class="mb-3" id="team-leader-container" style="display: none;">
+                        <label class="form-label">Team Leader *</label>
+                        <select name="team_leader" class="form-control" required>
+                            <!-- Populated by JavaScript -->
+                        </select>
+                        <small class="form-text text-muted">Select from your chosen team members</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Vehicles (Select Multiple) *</label>
+                        <select name="vehicles" class="form-control" multiple size="5" required>
+                            {% for vehicle in available_vehicles %}
+                            <option value="{{ vehicle.id }}">{{ vehicle.vehicle_number }} - {{ vehicle.get_vehicle_type_display }}</option>
+                            {% empty %}
+                            <option value="">No available vehicles</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple vehicles</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Special Equipment (Optional)</label>
+                        <textarea name="equipment" class="form-control" rows="3" 
+                                  placeholder="e.g., Water pumps, pipe cutters, safety gear"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Team Size</label>
+                        <input type="text" class="form-control" id="team-size" readonly value="0">
+                        <small class="form-text text-muted">Automatically calculated from selected workers</small>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'team_admin:manage_utility_teams' %}" class="btn btn-secondary w-100">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="fas fa-plus me-1"></i>Create Utility Team
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb me-2"></i>Utility Team Guide
+            </div>
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Recommended Team Sizes:</h6>
+                <ul class="small">
+                    <li><span class="badge bg-primary me-2">Water</span> 3-5 members</li>
+                    <li><span class="badge bg-warning me-2">Electricity</span> 2-4 members</li>
+                    <li><span class="badge bg-success me-2">Garbage</span> 4-6 members</li>
+                    <li><span class="badge bg-info me-2">Road Maintenance</span> 5-8 members</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Same JavaScript as emergency team creation
+document.addEventListener('DOMContentLoaded', function() {
+    const workersSelect = document.querySelector('select[name="workers"]');
+    const teamLeaderContainer = document.getElementById('team-leader-container');
+    const teamLeaderSelect = document.querySelector('select[name="team_leader"]');
+    const teamSizeInput = document.getElementById('team-size');
+    
+    workersSelect.addEventListener('change', function() {
+        const selectedWorkers = Array.from(workersSelect.selectedOptions).map(opt => opt.value);
+        teamSizeInput.value = selectedWorkers.length;
+        
+        if (selectedWorkers.length > 0) {
+            teamLeaderContainer.style.display = 'block';
+            teamLeaderSelect.innerHTML = '';
+            selectedWorkers.forEach(workerId => {
+                const option = document.createElement('option');
+                option.value = workerId;
+                option.textContent = workersSelect.querySelector(`option[value="${workerId}"]`).textContent;
+                teamLeaderSelect.appendChild(option);
+            });
+        } else {
+            teamLeaderContainer.style.display = 'none';
+            teamLeaderSelect.innerHTML = '';
+        }
+    });
+    
+    teamSizeInput.value = workersSelect.selectedOptions.length;
+});
+</script>
+{% endblock %}

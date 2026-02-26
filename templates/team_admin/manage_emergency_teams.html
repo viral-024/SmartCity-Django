@@ -1,0 +1,106 @@
+{% extends 'team_admin/base_team_admin.html' %}
+
+{% block title %}Emergency Teams - SmartCity EMS{% endblock %}
+
+{% block team_admin_content %}
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-ambulance me-2"></i>Emergency Response Teams</span>
+                <a href="{% url 'team_admin:create_emergency_team' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i>Create Team
+                </a>
+            </div>
+            <div class="card-body">
+                {% if teams %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Team Name</th>
+                                <th>Type</th>
+                                <th>Size</th>
+                                <th>Leader</th>
+                                <th>Vehicles</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in teams %}
+                            <tr>
+                                <td><strong>{{ team.name }}</strong></td>
+                                <td>
+                                    {% if team.team_type == 'medical' %}
+                                        <span class="badge bg-danger">Medical</span>
+                                    {% elif team.team_type == 'fire' %}
+                                        <span class="badge bg-warning">Fire</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ team.team_type|capfirst }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ team.team_size }}</td>
+                                <td>
+                                    {% if team.team_leader %}
+                                        {{ team.team_leader.username }}
+                                    {% else %}
+                                        <span class="text-muted">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% for vehicle in team.vehicles.all %}
+                                    <span class="badge bg-primary">{{ vehicle.vehicle_number }}</span>
+                                    {% empty %}
+                                    <span class="text-muted">No vehicles</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if team.is_available %}
+                                    <span class="badge bg-success">Available</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'team_admin:add_worker_to_emergency_team' team.id %}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-user-plus me-1"></i>Add Worker
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-ambulance fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Emergency Teams Created</h4>
+                    <p class="text-muted">Create your first emergency response team.</p>
+                    <a href="{% url 'team_admin:create_emergency_team' %}" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Create Emergency Team
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Team Management Tips
+            </div>
+            <div class="card-body">
+                <ul class="small">
+                    <li><i class="fas fa-check text-success me-2"></i>Create teams based on emergency types</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Assign 3-10 workers per team</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Include at least 1 vehicle per team</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Designate an experienced team leader</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

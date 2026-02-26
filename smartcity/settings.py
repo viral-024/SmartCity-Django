@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'dashboard',
     'emergency',
     'utilities',
+    'team_admin',
 ]
 
 MIDDLEWARE = [

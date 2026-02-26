@@ -1,0 +1,66 @@
+{% extends 'team_admin/base_team_admin.html' %}
+
+{% block title %}Create Vehicle - SmartCity EMS{% endblock %}
+
+{% block team_admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-truck me-2"></i>Add New Vehicle to Fleet
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Vehicle Number *</label>
+                        <input type="text" name="vehicle_number" class="form-control" 
+                               placeholder="e.g., AMB-001, FIRE-002" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Vehicle Type *</label>
+                        <select name="vehicle_type" class="form-control" required>
+                            <option value="ambulance">Ambulance</option>
+                            <option value="fire_truck">Fire Truck</option>
+                            <option value="police_car">Police Car</option>
+                            <option value="water_tanker">Water Tanker</option>
+                            <option value="garbage_truck">Garbage Truck</option>
+                            <option value="road_maintenance">Road Maintenance</option>
+                            <option value="electricity_van">Electricity Van</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Driver Name *</label>
+                        <input type="text" name="driver_name" class="form-control" 
+                               placeholder="e.g., John Smith" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Driver Contact *</label>
+                        <input type="tel" name="driver_contact" class="form-control" 
+                               placeholder="e.g., 9876543210" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Location (Optional)</label>
+                        <input type="text" name="current_location" class="form-control" 
+                               placeholder="e.g., Central Depot, Station 5">
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% url 'team_admin:manage_vehicles' %}" class="btn btn-secondary w-100">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-truck me-1"></i>Add Vehicle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ class Command(BaseCommand):
             ('utility_officer', 'utility123', 'utility_officer', 'utility@smartcity.com'),
             ('emergency_op', 'emergency123', 'emergency_operator', 'emergency@smartcity.com'),
             ('driver1', 'driver123', 'vehicle_driver', 'driver@smartcity.com'),
+            ('team_admin', 'team123', 'team_admin', 'team@smartcity.com'),
         ]
         
         for username, password, role, email in users:

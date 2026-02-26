@@ -1,0 +1,43 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-user-tie me-2"></i>Team Administration Dashboard</h2>
+        <p class="text-muted">Manage workers, teams, and vehicles for SmartCity EMS</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card primary">
+            <i class="fas fa-users fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_workers|default:0 }}</div>
+            <div class="stat-label">Total Workers</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card danger">
+            <i class="fas fa-ambulance fa-2x mb-3"></i>
+            <div class="stat-number">{{ emergency_teams|default:0 }}</div>
+            <div class="stat-label">Emergency Teams</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card warning">
+            <i class="fas fa-tools fa-2x mb-3"></i>
+            <div class="stat-number">{{ utility_teams|default:0 }}</div>
+            <div class="stat-label">Utility Teams</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card success">
+            <i class="fas fa-truck fa-2x mb-3"></i>
+            <div class="stat-number">{{ total_vehicles|default:0 }}</div>
+            <div class="stat-label">Total Vehicles</div>
+        </div>
+    </div>
+</div>
+
+{% block team_admin_content %}{% endblock %}
+{% endblock %}

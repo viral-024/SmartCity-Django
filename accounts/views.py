@@ -42,6 +42,7 @@ def login_view(request):
             'utility_officer': '2222',
             'emergency_operator': '3333',
             'worker': '4444',
+            'team_admin': '5555',
             'citizen': ''  # No code required for citizens
         }
         

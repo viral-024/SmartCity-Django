@@ -24,5 +24,6 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('emergency/', include('emergency.urls')),
     path('utilities/', include('utilities.urls')),
+    path('team-admin/', include('team_admin.urls')),
     path('', RedirectView.as_view(url='/dashboard/')),
 ]

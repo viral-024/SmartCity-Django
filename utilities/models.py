@@ -126,18 +126,37 @@ class ComplaintUpdate(models.Model):
 
 
 class UtilityTeam(models.Model):
-    """Utility repair team with multiple workers"""
+    """Utility repair team with multiple workers and vehicles"""
+    TEAM_TYPE_CHOICES = [
+        ('water', 'Water Supply Response'),
+        ('electricity', 'Electricity Response'),
+        ('road_maintenance', 'Road Maintenance'),
+        ('garbage', 'Garbage Management'),
+        ('public_works', 'Public Works'),
+        ('special_operations', 'Special Operations'),
+    ]
+    
     name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    team_size = models.IntegerField(default=3)
-    workers = models.ManyToManyField('accounts.User', limit_choices_to={'role': 'worker'})
+    team_type = models.CharField(max_length=50, choices=TEAM_TYPE_CHOICES, default='water')
+    team_size = models.IntegerField(default=0)
+    workers = models.ManyToManyField(
+        'accounts.User', 
+        limit_choices_to={'role': 'worker'}, 
+        related_name='utility_teams'
+    )
+    vehicles = models.ManyToManyField(
+        'emergency.EmergencyVehicle',  # Reuse emergency vehicles for utility teams
+        related_name='utility_teams',
+        blank=True
+    )
     equipment = models.TextField(blank=True)
     team_leader = models.ForeignKey(
         'accounts.User', 
         on_delete=models.SET_NULL, 
         null=True, 
         related_name='led_utility_teams',
-        limit_choices_to={'role': 'worker'}
+        limit_choices_to={'role': 'worker'},
+        blank=True
     )
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -147,7 +166,13 @@ class UtilityTeam(models.Model):
     
     class Meta:
         ordering = ['name']
-
+    
+    def save(self, *args, **kwargs):
+        """Save team without accessing M2M relationships during initial save"""
+        # Only calculate team_size if the instance already exists in DB (has ID)
+        if self.pk:
+            self.team_size = self.workers.count()
+        super().save(*args, **kwargs)
 
 class UtilityTeamAssignment(models.Model):
     """Team assigned to a utility complaint"""

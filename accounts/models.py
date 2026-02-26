@@ -5,12 +5,14 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
+    # Add 'team_admin' to ROLE_CHOICES
     ROLE_CHOICES = [
         ('citizen', 'Citizen'),
         ('government_authority', 'Government Authority'),
-        ('utility_officer', 'Utility Officer'),
         ('emergency_operator', 'Emergency Operator'),
-        ('worker', 'Worker'),  # ← CHANGED FROM 'vehicle_driver'
+        ('utility_officer', 'Utility Officer'),
+        ('team_admin', 'Team Administrator'),  # ← NEW ROLE
+        ('worker', 'Worker'),
     ]
     
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='citizen')

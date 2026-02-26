@@ -1,0 +1,99 @@
+{% extends 'team_admin/base_team_admin.html' %}
+
+{% block title %}Add Worker to Team - SmartCity EMS{% endblock %}
+
+{% block team_admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-users me-2"></i>Add Worker to {{ team.name }}
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Current Size:</strong> {{ team.team_size }} members
+                </div>
+                <div class="mb-3">
+                    <strong>Current Workers:</strong>
+                    {% for worker in team.workers.all %}
+                    <span class="badge bg-primary">{{ worker.username }}</span>
+                    {% empty %}
+                    <span class="text-muted">No workers assigned</span>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <strong>Team Leader:</strong>
+                    {% if team.team_leader %}
+                        {{ team.team_leader.username }}
+                    {% else %}
+                        <span class="text-muted">Not assigned</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-user-plus me-2"></i>Available Workers
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Username</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for worker in available_workers %}
+                                <tr>
+                                    <td><input type="checkbox" name="worker_ids" value="{{ worker.id }}"></td>
+                                    <td><strong>{{ worker.username }}</strong></td>
+                                    <td>{{ worker.phone_number|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">New Team Leader (Optional)</label>
+                        <select name="team_leader" class="form-control">
+                            <option value="">-- Keep current leader --</option>
+                            {% for worker in available_workers %}
+                            <option value="{{ worker.id }}">{{ worker.username }} - {{ worker.phone_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Vehicles</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for vehicle in team.vehicles.all %}
+                            <span class="badge bg-primary">{{ vehicle.vehicle_number }}</span>
+                            {% empty %}
+                            <span class="text-muted">No vehicles assigned</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{% if team_type == 'emergency' %}{% url 'team_admin:manage_emergency_teams' %}{% else %}{% url 'team_admin:manage_utility_teams' %}{% endif %}" 
+                           class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-1"></i>Add Selected Workers
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

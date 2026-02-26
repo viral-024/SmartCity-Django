@@ -132,7 +132,6 @@
     <div class="container-fluid">
       <div class="row">
         <!-- Sidebar -->
-        <!-- Sidebar -->
         <nav class="col-md-3 col-lg-2 d-md-block sidebar">
           <div class="position-sticky pt-3">
             <ul class="nav flex-column">
@@ -192,11 +191,6 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#">
-                  <i class="fas fa-users"></i> Manage Workers
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
                   <i class="fas fa-chart-bar"></i> Reports
                 </a>
               </li>
@@ -212,14 +206,6 @@
               </li>
               <li class="nav-item">
                 <a
-                  class="nav-link {% if '/emergency/manage-teams/' in request.path %}active{% endif %}"
-                  href="{% url 'emergency:manage_teams' %}"
-                >
-                  <i class="fas fa-users"></i> Manage Teams
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
                   class="nav-link {% if '/emergency/vehicles/' in request.path %}active{% endif %}"
                   href="{% url 'emergency:manage_vehicles' %}"
                 >
@@ -227,8 +213,49 @@
                 </a>
               </li>
 
+              {% elif user.role == 'team_admin' %}
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if '/team-admin/workers/' in request.path or '/team-admin/' == request.path %}active{% endif %}"
+                  href="{% url 'team_admin:manage_workers' %}"
+                >
+                  <i class="fas fa-user-tie"></i> Dashboard
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if '/team-admin/workers/' in request.path %}active{% endif %}"
+                  href="{% url 'team_admin:manage_workers' %}"
+                >
+                  <i class="fas fa-users"></i> Manage Workers
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if '/team-admin/emergency-teams/' in request.path %}active{% endif %}"
+                  href="{% url 'team_admin:manage_emergency_teams' %}"
+                >
+                  <i class="fas fa-ambulance"></i> Emergency Teams
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if '/team-admin/utility-teams/' in request.path %}active{% endif %}"
+                  href="{% url 'team_admin:manage_utility_teams' %}"
+                >
+                  <i class="fas fa-tools"></i> Utility Teams
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if '/team-admin/vehicles/' in request.path %}active{% endif %}"
+                  href="{% url 'team_admin:manage_vehicles' %}"
+                >
+                  <i class="fas fa-truck"></i> Manage Vehicles
+                </a>
+              </li>
+
               {% elif user.role == 'worker' %}
-              <!-- CHANGED FROM 'vehicle_driver' -->
               <li class="nav-item">
                 <a
                   class="nav-link {% if '/dashboard/worker/' in request.path %}active{% endif %}"
@@ -249,7 +276,6 @@
               </li>
 
               {% endif %}
-              <!-- ONLY ONE endif at the VERY END -->
             </ul>
           </div>
         </nav>
