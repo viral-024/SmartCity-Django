@@ -9,7 +9,7 @@
     <i class="fas fa-info-circle me-2"></i>
     <strong>Login Instructions:</strong><br>
     • <strong>Citizens:</strong> Use your username and password (no access code)<br>
-    • <strong>Staff:</strong> Enter your access code (Gov: 1111, Utility: 2222, Emergency: 3333, Team Admin: 5555, Worker: 4444)
+    • <strong>Staff:</strong> Enter your access code (Gov: 1111, Utility: 2222, Emergency: 3333, Team Admin: 5555)
 </div>
 
 <!-- Staff Credentials Table - CENTERED -->
@@ -43,11 +43,6 @@
                     <td>team_admin</td>
                     <td>team123</td>
                     <td>Team Administrator</td>
-                </tr>
-                <tr>
-                    <td>worker1</td>
-                    <td>worker123</td>
-                    <td>Worker</td>
                 </tr>
             </tbody>
         </table>
@@ -88,9 +83,6 @@
             <option value="team_admin" {% if role == "team_admin" %}selected{% endif %}>
                 👔 Team Administrator
             </option>
-            <option value="worker" {% if role == "worker" %}selected{% endif %}>
-                👷 Worker
-            </option>
         </select>
     </div>
     
@@ -98,7 +90,7 @@
         <label class="form-label"><i class="fas fa-key me-2"></i>Access Code</label>
         <input type="password" name="access_code" class="form-control" 
                placeholder="Enter access code">
-        <small class="text-muted">Gov: 1111 | Utility: 2222 | Emergency: 3333 | Team Admin: 5555 | Worker: 4444</small>
+        <small class="text-muted">Gov: 1111 | Utility: 2222 | Emergency: 3333 | Team Admin: 5555</small>
     </div>
     
     <button type="submit" class="btn btn-primary mb-3 w-100">

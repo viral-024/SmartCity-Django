@@ -1,0 +1,74 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Escalations - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Escalated Complaints</h2>
+        <p class="text-muted">Read-only view of complaints escalated to government authority</p>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <i class="fas fa-eye me-2"></i>
+    <strong>Read-Only Access:</strong> This is an oversight view only. Operational handling remains with Utility Officers and Team Administrators.
+</div>
+
+{% if escalated_complaints %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Type</th>
+                        <th>Title</th>
+                        <th>Citizen</th>
+                        <th>Escalated</th>
+                        <th>Status</th>
+                        <th>Assigned Team</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comp in escalated_complaints %}
+                    <tr>
+                        <td><strong>{{ comp.complaint_id }}</strong></td>
+                        <td>
+                            <span class="badge bg-{{ comp.utility_type.icon|default:'info' }}">
+                                {{ comp.utility_type.name }}
+                            </span>
+                        </td>
+                        <td>{{ comp.title|truncatewords:8 }}</td>
+                        <td>{{ comp.citizen.username }}</td>
+                        <td>{{ comp.escalated_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span class="badge bg-danger">Escalated</span>
+                        </td>
+                        <td>
+                            {% if comp.team_assignments.exists %}
+                                {% for assignment in comp.team_assignments.all %}
+                                    <span class="badge bg-primary">{{ assignment.team.name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+        <h4 class="text-success">No Escalated Complaints</h4>
+        <p class="text-muted">All complaints are being handled within standard procedures.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

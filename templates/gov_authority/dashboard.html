@@ -1,0 +1,130 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Government Dashboard - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-gavel me-2"></i>Government Authority Dashboard</h2>
+        <p class="text-muted">Strategic oversight and resource monitoring</p>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a href="{% url 'gov_authority:staff_list' %}" class="btn btn-info w-100 py-3">
+            <i class="fas fa-users me-2"></i>Staff Management
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'gov_authority:escalations' %}" class="btn btn-warning w-100 py-3">
+            <i class="fas fa-exclamation-triangle me-2"></i>View Escalations
+        </a>
+    </div>
+</div>
+
+<!-- Real-Time Resources (TEAMS ONLY - NO VEHICLES) -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-ambulance me-2"></i>Emergency Response Teams
+            </div>
+            <div class="card-body text-center">
+                <div class="display-4 fw-bold">{{ total_emergency_teams }}</div>
+                <div class="mb-3">
+                    <span class="badge bg-success fs-6">Available: {{ available_emergency_teams }} ({{ emergency_avail_pct }}%)</span>
+                    <span class="badge bg-danger fs-6 ms-2">Assigned: {{ assigned_emergency_teams }}</span>
+                </div>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {{ emergency_avail_pct }}%" 
+                         aria-valuenow="{{ emergency_avail_pct }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ emergency_avail_pct }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-tools me-2"></i>Utility Response Teams
+            </div>
+            <div class="card-body text-center">
+                <div class="display-4 fw-bold">{{ total_utility_teams }}</div>
+                <div class="mb-3">
+                    <span class="badge bg-success fs-6">Available: {{ available_utility_teams }} ({{ utility_avail_pct }}%)</span>
+                    <span class="badge bg-danger fs-6 ms-2">Assigned: {{ assigned_utility_teams }}</span>
+                </div>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {{ utility_avail_pct }}%" 
+                         aria-valuenow="{{ utility_avail_pct }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ utility_avail_pct }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Trends & Active Incidents -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-chart-line me-2"></i>Performance Trends (Last 30 Days)
+            </div>
+            <div class="card-body">
+                <div class="row text-center g-4">
+                    <div class="col-md-4">
+                        <div class="display-6 fw-bold text-primary">{{ resolved_emergencies }}</div>
+                        <div class="text-muted">Emergencies Resolved</div>
+                        <small class="text-success">Avg: {{ avg_response_time }} min response</small>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="display-6 fw-bold text-warning">{{ resolved_complaints }}</div>
+                        <div class="text-muted">Complaints Resolved</div>
+                        <small class="text-success">Avg: {{ avg_resolution_time }} hrs resolution</small>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="display-6 fw-bold text-success">{{ sla_compliance }}%</div>
+                        <div class="text-muted">SLA Compliance</div>
+                        <small class="text-muted">Target: 90%+</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-bell me-2"></i>Active Incidents & Alerts
+            </div>
+            <div class="card-body">
+                <div class="mb-4 text-center">
+                    <div class="display-5 fw-bold text-primary">{{ active_emergencies }}</div>
+                    <div class="text-muted">Active Emergencies</div>
+                </div>
+                <div class="mb-4 text-center">
+                    <div class="display-5 fw-bold text-warning">{{ active_complaints }}</div>
+                    <div class="text-muted">Active Complaints</div>
+                </div>
+                <div class="alert alert-warning text-center mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>{{ alerts_count }} Alerts</strong><br>
+                    <small>{{ delayed_emergencies }} delayed emergencies<br>{{ delayed_complaints }} delayed complaints</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'emergency',
     'utilities',
     'team_admin',
+    'gov_authority',
 ]
 
 MIDDLEWARE = [

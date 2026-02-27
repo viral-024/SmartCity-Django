@@ -158,25 +158,26 @@
               {% elif user.role == 'government_authority' %}
               <li class="nav-item">
                 <a
-                  class="nav-link {% if '/dashboard/gov/' in request.path %}active{% endif %}"
-                  href="{% url 'dashboard:gov' %}"
+                  class="nav-link {% if '/gov/' in request.path %}active{% endif %}"
+                  href="{% url 'gov_authority:dashboard' %}"
                 >
-                  <i class="fas fa-chart-line"></i> Analytics
+                  <i class="fas fa-chart-line"></i> Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-cog"></i> System Config
+                <a
+                  class="nav-link {% if '/gov/staff/' in request.path %}active{% endif %}"
+                  href="{% url 'gov_authority:staff_list' %}"
+                >
+                  <i class="fas fa-users"></i> Staff Management
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-users"></i> User Management
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-trophy"></i> Performance
+                <a
+                  class="nav-link {% if '/gov/escalations/' in request.path %}active{% endif %}"
+                  href="{% url 'gov_authority:escalations' %}"
+                >
+                  <i class="fas fa-exclamation-triangle"></i> Escalations
                 </a>
               </li>
 
@@ -202,14 +203,6 @@
                   href="{% url 'emergency:operator_dashboard' %}"
                 >
                   <i class="fas fa-ambulance"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/emergency/vehicles/' in request.path %}active{% endif %}"
-                  href="{% url 'emergency:manage_vehicles' %}"
-                >
-                  <i class="fas fa-truck"></i> Manage Vehicles
                 </a>
               </li>
 
