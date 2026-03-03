@@ -11,7 +11,7 @@ class UtilityType(models.Model):
     
     def __str__(self):
         return self.name
-
+ 
 
 class Complaint(models.Model):
     """Utility complaint submitted by citizens"""

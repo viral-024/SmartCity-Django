@@ -103,7 +103,10 @@ def worker_dashboard(request):
         return redirect('dashboard:dashboard')
     
     # Get teams this worker belongs to
-    teams = EmergencyTeam.objects.filter(workers=request.user) | UtilityTeam.objects.filter(workers=request.user)
+    emergency_teams = EmergencyTeam.objects.filter(workers=request.user)
+    utility_teams = UtilityTeam.objects.filter(workers=request.user)
+
+    teams = list(emergency_teams) + list(utility_teams)
     
     # Get active emergency assignments
     active_emergency_assignments = TeamAssignment.objects.filter(

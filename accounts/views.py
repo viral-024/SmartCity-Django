@@ -41,8 +41,9 @@ def login_view(request):
             'government_authority': '1111',
             'utility_officer': '2222',
             'emergency_operator': '3333',
+            'worker' : '4444',
             'team_admin': '5555',
-            'citizen': ''  # No code required for citizens
+            'citizen': '',  # No code required for citizens
         }
         
         # Check access code
