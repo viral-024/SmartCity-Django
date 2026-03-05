@@ -43,8 +43,8 @@ class EmergencyRequest(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
     # Location Details
-    location_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)  # Changed
-    location_lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)  # Changed
+    location_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)  
+    location_lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)  
     address = models.TextField()
     landmark = models.CharField(max_length=200, blank=True)
     

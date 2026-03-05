@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from .models import (
     EmergencyRequest, EmergencyType, EmergencyVehicle,
-    EmergencyTeam, TeamAssignment  # ← REMOVED DispatchRecord (not used in team system)
+    EmergencyTeam, TeamAssignment 
 )
 from .forms import EmergencyRequestForm, EmergencyVehicleForm
 from accounts.models import User
@@ -105,6 +105,10 @@ def operator_dashboard(request):
         status__in=['assigned', 'en_route', 'on_scene']
     ).select_related('emergency_request', 'team').order_by('-assigned_at')
     
+    available_vehicles = EmergencyVehicle.objects.filter(
+        is_available=True
+    ).count()
+    
     # Get statistics
     total_pending = pending_emergencies.count()
     total_active = active_assignments.count()
@@ -129,6 +133,7 @@ def operator_dashboard(request):
         'active_emergencies': active_emergencies,
         'on_scene': on_scene,
         'resolved_today': resolved_today,
+        'available_vehicles': available_vehicles
     }
     
     return render(request, 'emergency/operator_dashboard.html', context)

@@ -172,14 +172,14 @@
                   <i class="fas fa-users"></i> Staff Management
                 </a>
               </li>
-              <li class="nav-item">
+              {% comment %} <li class="nav-item">
                 <a
                   class="nav-link {% if '/gov/escalations/' in request.path %}active{% endif %}"
                   href="{% url 'gov_authority:escalations' %}"
                 >
                   <i class="fas fa-exclamation-triangle"></i> Escalations
                 </a>
-              </li>
+              </li> {% endcomment %}
 
               {% elif user.role == 'utility_officer' %}
               <li class="nav-item">
@@ -190,11 +190,11 @@
                   <i class="fas fa-tools"></i> Dashboard
                 </a>
               </li>
-              <li class="nav-item">
+              {% comment %} <li class="nav-item">
                 <a class="nav-link" href="#">
                   <i class="fas fa-chart-bar"></i> Reports
                 </a>
-              </li>
+              </li> {% endcomment %}
 
               {% elif user.role == 'emergency_operator' %}
               <li class="nav-item">

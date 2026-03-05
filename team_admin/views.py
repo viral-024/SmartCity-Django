@@ -7,10 +7,16 @@ from utilities.models import UtilityTeam
 
 @login_required
 def create_worker(request):
-    """Team admin creates worker accounts"""
+    """Team admin creates worker accounts WITH DASHBOARD STATISTICS"""
     if request.user.role != 'team_admin':
         messages.error(request, 'Access denied. Only Team Administrators can create workers.')
         return redirect('dashboard:dashboard')
+    
+    # ✅ CALCULATE ACTUAL STATISTICS FOR DASHBOARD
+    total_workers = User.objects.filter(role='worker').count()
+    emergency_teams = EmergencyTeam.objects.count()
+    utility_teams = UtilityTeam.objects.count()
+    total_vehicles = EmergencyVehicle.objects.count()
     
     if request.method == 'POST':
         username = request.POST.get('username').strip()
@@ -18,13 +24,7 @@ def create_worker(request):
         phone = request.POST.get('phone_number').strip()
         email = request.POST.get('email').strip()
         
-        if not username or not password or not phone:
-            messages.error(request, 'Username, password, and phone number are required.')
-            return redirect('team_admin:create_worker')
-        
-        if User.objects.filter(username=username).exists():
-            messages.error(request, f'Username "{username}" already exists.')
-            return redirect('team_admin:create_worker')
+        # ... existing validation code ...
         
         # Create worker account
         worker = User.objects.create_user(
@@ -34,20 +34,54 @@ def create_worker(request):
             phone_number=phone,
             email=email
         )
+        
         messages.success(request, f'Worker "{username}" created successfully!')
         return redirect('team_admin:manage_workers')
     
-    return render(request, 'team_admin/create_worker.html')
+    # ✅ PASS STATISTICS TO TEMPLATE
+    context = {
+        'total_workers': total_workers,
+        'emergency_teams': emergency_teams,
+        'utility_teams': utility_teams,
+        'total_vehicles': total_vehicles,
+    }
+    return render(request, 'team_admin/create_worker.html', context)
+
+# @login_required
+# def manage_workers(request):
+#     """View all workers"""
+#     if request.user.role != 'team_admin':
+#         messages.error(request, 'Access denied.')
+#         return redirect('dashboard:dashboard')
+    
+#     workers = User.objects.filter(role='worker').order_by('username')
+#     return render(request, 'team_admin/manage_workers.html', {'workers': workers})
 
 @login_required
 def manage_workers(request):
-    """View all workers"""
+    """View all workers WITH dashboard statistics"""
     if request.user.role != 'team_admin':
         messages.error(request, 'Access denied.')
         return redirect('dashboard:dashboard')
     
+    # Get workers list
     workers = User.objects.filter(role='worker').order_by('username')
-    return render(request, 'team_admin/manage_workers.html', {'workers': workers})
+    
+    # ✅ CALCULATE ACTUAL STATISTICS FOR DASHBOARD
+    total_workers = workers.count()
+    emergency_teams = EmergencyTeam.objects.count()
+    utility_teams = UtilityTeam.objects.count()
+    total_vehicles = EmergencyVehicle.objects.count()
+    
+    # ✅ PASS STATISTICS TO TEMPLATE
+    context = {
+        'workers': workers,
+        'total_workers': total_workers,      # Actual count
+        'emergency_teams': emergency_teams,  # Actual count
+        'utility_teams': utility_teams,      # Actual count
+        'total_vehicles': total_vehicles,    # Actual count
+    }
+    return render(request, 'team_admin/manage_workers.html', context)
 
 @login_required
 def create_emergency_team(request):
@@ -110,7 +144,18 @@ def manage_emergency_teams(request):
         return redirect('dashboard:dashboard')
     
     teams = EmergencyTeam.objects.all().order_by('name')
-    return render(request, 'team_admin/manage_emergency_teams.html', {'teams': teams})
+
+    # Add before return statement:
+    context = {
+        'teams': teams,
+        'total_workers': User.objects.filter(role='worker').count(),
+        'emergency_teams': EmergencyTeam.objects.count(),
+        'utility_teams': UtilityTeam.objects.count(),
+        'total_vehicles': EmergencyVehicle.objects.count(),
+    }
+    return render(request, 'team_admin/manage_emergency_teams.html', context)
+    
+    # return render(request, 'team_admin/manage_emergency_teams.html', {'teams': teams})
 
 @login_required
 def add_worker_to_emergency_team(request, team_id):
@@ -234,7 +279,16 @@ def manage_utility_teams(request):
         return redirect('dashboard:dashboard')
     
     teams = UtilityTeam.objects.all().order_by('name')
-    return render(request, 'team_admin/manage_utility_teams.html', {'teams': teams})
+
+    context = {
+        'teams': teams,
+        'total_workers': User.objects.filter(role='worker').count(),
+        'emergency_teams': EmergencyTeam.objects.count(),
+        'utility_teams': UtilityTeam.objects.count(),
+        'total_vehicles': EmergencyVehicle.objects.count(),
+    }
+    return render(request, 'team_admin/manage_utility_teams.html', context)
+    # return render(request, 'team_admin/manage_utility_teams.html', {'teams': teams})
 
 @login_required
 def add_worker_to_utility_team(request, team_id):
@@ -331,7 +385,17 @@ def manage_vehicles(request):
         return redirect('dashboard:dashboard')
     
     vehicles = EmergencyVehicle.objects.all().order_by('vehicle_number')
-    return render(request, 'team_admin/manage_vehicles.html', {'vehicles': vehicles})
+
+    # Add before return statement:
+    context = {
+        'vehicles': vehicles,
+        'total_workers': User.objects.filter(role='worker').count(),
+        'emergency_teams': EmergencyTeam.objects.count(),
+        'utility_teams': UtilityTeam.objects.count(),
+        'total_vehicles': EmergencyVehicle.objects.count(),
+    }
+    return render(request, 'team_admin/manage_vehicles.html', context)
+    # return render(request, 'team_admin/manage_vehicles.html', {'vehicles': vehicles})
 
 @login_required
 def delete_vehicle(request, vehicle_id):

@@ -13,7 +13,7 @@ def dashboard_redirect(request):
     if role == 'citizen':
         return redirect('dashboard:citizen')
     elif role == 'government_authority':
-        return redirect('gov_authority:dashboard')  # CHANGED FROM dashboard:gov
+        return redirect('gov_authority:dashboard')
     elif role == 'utility_officer':
         return redirect('utilities:officer_dashboard')
     elif role == 'emergency_operator':

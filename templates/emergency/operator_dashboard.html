@@ -7,35 +7,36 @@ Operations Dashboard - SmartCity EMS{% endblock %} {% block dashboard_content %}
   </div>
 </div>
 
+<!-- Statistics cards -->
 <div class="row g-4 mb-4">
-  <div class="col-md-6 col-lg-3">
-    <div class="stat-card danger">
-      <i class="fas fa-bell fa-2x mb-3"></i>
-      <div class="stat-number">{{ active_emergencies }}</div>
-      <div class="stat-label">Active Emergencies</div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card danger">
+            <i class="fas fa-bell fa-2x mb-3"></i>
+            <div class="stat-number">{{ active_emergencies }}</div>
+            <div class="stat-label">Active Emergencies</div>
+        </div>
     </div>
-  </div>
-  <div class="col-md-6 col-lg-3">
-    <div class="stat-card success">
-      <i class="fas fa-truck fa-2x mb-3"></i>
-      <div class="stat-number">{{ available_vehicles }}</div>
-      <div class="stat-label">Available Vehicles</div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card success">
+            <i class="fas fa-truck fa-2x mb-3"></i>
+            <div class="stat-number">{{ available_vehicles }}</div>
+            <div class="stat-label">Available Vehicles</div>
+        </div>
     </div>
-  </div>
-  <div class="col-md-6 col-lg-3">
-    <div class="stat-card warning">
-      <i class="fas fa-map-marker fa-2x mb-3"></i>
-      <div class="stat-number">{{ on_scene }}</div>
-      <div class="stat-label">On Scene</div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card warning">
+            <i class="fas fa-location-dot fa-2x mb-3"></i>
+            <div class="stat-number">{{ on_scene }}</div>
+            <div class="stat-label">On Scene</div>
+        </div>
     </div>
-  </div>
-  <div class="col-md-6 col-lg-3">
-    <div class="stat-card info">
-      <i class="fas fa-check-circle fa-2x mb-3"></i>
-      <div class="stat-number">{{ resolved_today }}</div>
-      <div class="stat-label">Resolved Today</div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card primary">
+            <i class="fas fa-check-circle fa-2x mb-3"></i>
+            <div class="stat-number">{{ resolved_today }}</div>
+            <div class="stat-label">Resolved Today</div>
+        </div>
     </div>
-  </div>
 </div>
 
 <div class="row">

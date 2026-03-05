@@ -58,7 +58,7 @@ The system supports multiple user roles:
 Follow these steps to set up and run the project locally:
 
 1. Clone the repository
-git clone https://github.com/your-username/SmartCity-Django.git
+https://github.com/viral-024/SmartCity-Django.git
 cd SmartCity-Django
 
 2. Create and activate virtual environment

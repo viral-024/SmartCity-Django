@@ -1,17 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-
 class User(AbstractUser):
-    # Add 'team_admin' to ROLE_CHOICES
     ROLE_CHOICES = [
         ('citizen', 'Citizen'),
         ('government_authority', 'Government Authority'),
         ('emergency_operator', 'Emergency Operator'),
         ('utility_officer', 'Utility Officer'),
-        ('team_admin', 'Team Administrator'),  # ← NEW ROLE
+        ('team_admin', 'Team Administrator'), 
         ('worker', 'Worker'),
     ]
     
@@ -29,6 +25,6 @@ class User(AbstractUser):
             'government_authority': '/dashboard/gov/',
             'utility_officer': '/dashboard/utility/',
             'emergency_operator': '/dashboard/emergency/',
-            'worker': '/dashboard/worker/',  # ← NEW
+            'worker': '/dashboard/worker/',
         }
         return dashboard_urls.get(self.role, '/dashboard/')
