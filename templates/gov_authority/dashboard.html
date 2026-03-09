@@ -3,128 +3,223 @@
 {% block title %}Government Dashboard - SmartCity EMS{% endblock %}
 
 {% block dashboard_content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2><i class="fas fa-gavel me-2"></i>Government Authority Dashboard</h2>
-        <p class="text-muted">Strategic oversight and resource monitoring</p>
-    </div>
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+  <div>
+    <h2 class="mb-1"><i class="fas fa-chart-line me-2 text-primary"></i>Government Overview</h2>
+    <p class="text-muted mb-0">City-wide response performance, resource posture, and service quality.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'gov_authority:staff_list' %}" class="btn btn-info text-white">
+      <i class="fas fa-users-gear me-1"></i>Staff Management
+    </a>
+    <a href="{% url 'gov_authority:escalations' %}" class="btn btn-warning">
+      <i class="fas fa-triangle-exclamation me-1"></i>Escalations
+    </a>
+  </div>
 </div>
 
-<!-- Quick Actions -->
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <a href="{% url 'gov_authority:staff_list' %}" class="btn btn-info w-100 py-3">
-            <i class="fas fa-users me-2"></i>Staff Management
-        </a>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card primary h-100">
+      <div class="stat-number">{{ total_users }}</div>
+      <div class="stat-label">Total Users</div>
     </div>
-    {% comment %} <div class="col-md-4">
-        <a href="{% url 'gov_authority:escalations' %}" class="btn btn-warning w-100 py-3">
-            <i class="fas fa-exclamation-triangle me-2"></i>View Escalations
-        </a>
-    </div> {% endcomment %}
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card info h-100">
+      <div class="stat-number">{{ active_emergencies }}</div>
+      <div class="stat-label">Active Emergencies</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card warning h-100">
+      <div class="stat-number">{{ active_complaints }}</div>
+      <div class="stat-label">Active Complaints</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card danger h-100">
+      <div class="stat-number">{{ alerts_count }}</div>
+      <div class="stat-label">High-Risk Alerts</div>
+    </div>
+  </div>
 </div>
 
-<!-- Real-Time Resources (TEAMS ONLY - NO VEHICLES) -->
 <div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-ambulance me-2"></i>Emergency Response Teams
-            </div>
-            <div class="card-body text-center">
-                <div class="display-4 fw-bold">{{ total_emergency_teams }}</div>
-                <div class="mb-3">
-                    <span class="badge bg-success fs-6">Available: {{ available_emergency_teams }} ({{ emergency_avail_pct }}%)</span>
-                    <span class="badge bg-danger fs-6 ms-2">Assigned: {{ assigned_emergency_teams }}</span>
-                </div>
-                <div class="progress" style="height: 20px;">
-                    <div class="progress-bar bg-success" role="progressbar" 
-                         style="width: {{ emergency_avail_pct }}%" 
-                         aria-valuenow="{{ emergency_avail_pct }}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        {{ emergency_avail_pct }}%
-                    </div>
-                </div>
-            </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="fas fa-shield-halved me-2"></i>Resource Availability</div>
+      <div class="card-body">
+        <div class="mb-4">
+          <div class="d-flex justify-content-between mb-1">
+            <span>Emergency Teams</span>
+            <strong>{{ available_emergency_teams }}/{{ total_emergency_teams }}</strong>
+          </div>
+          <div class="progress" role="progressbar" aria-valuenow="{{ emergency_team_availability_pct }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-primary" style="width: {{ emergency_team_availability_pct }}%"></div>
+          </div>
         </div>
-    </div>
-    
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-header bg-warning text-dark">
-                <i class="fas fa-tools me-2"></i>Utility Response Teams
-            </div>
-            <div class="card-body text-center">
-                <div class="display-4 fw-bold">{{ total_utility_teams }}</div>
-                <div class="mb-3">
-                    <span class="badge bg-success fs-6">Available: {{ available_utility_teams }} ({{ utility_avail_pct }}%)</span>
-                    <span class="badge bg-danger fs-6 ms-2">Assigned: {{ assigned_utility_teams }}</span>
-                </div>
-                <div class="progress" style="height: 20px;">
-                    <div class="progress-bar bg-success" role="progressbar" 
-                         style="width: {{ utility_avail_pct }}%" 
-                         aria-valuenow="{{ utility_avail_pct }}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        {{ utility_avail_pct }}%
-                    </div>
-                </div>
-            </div>
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between mb-1">
+            <span>Utility Teams</span>
+            <strong>{{ available_utility_teams }}/{{ total_utility_teams }}</strong>
+          </div>
+          <div class="progress" role="progressbar" aria-valuenow="{{ utility_team_availability_pct }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-warning" style="width: {{ utility_team_availability_pct }}%"></div>
+          </div>
         </div>
+
+        <div>
+          <div class="d-flex justify-content-between mb-1">
+            <span>Vehicles Ready</span>
+            <strong>{{ vehicles_available }}/{{ total_vehicles }}</strong>
+          </div>
+          <div class="progress" role="progressbar" aria-valuenow="{{ vehicle_availability_pct }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-success" style="width: {{ vehicle_availability_pct }}%"></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="fas fa-gauge-high me-2"></i>Performance Snapshot (30 Days)</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted small">SLA Compliance</div>
+              <div class="fs-4 fw-bold">{{ sla_compliance }}%</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted small">Avg Emergency Response</div>
+              <div class="fs-4 fw-bold">{{ avg_response_time }} min</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted small">Avg Complaint Resolution</div>
+              <div class="fs-4 fw-bold">{{ avg_resolution_time }} hr</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted small">Citizen Satisfaction</div>
+              <div class="fs-4 fw-bold">{{ avg_citizen_rating }}/5</div>
+              <small class="text-muted">{{ citizen_feedback_count }} ratings</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Performance Trends & Active Incidents -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="fas fa-fire me-2"></i>Emergency Categories (30 Days)</div>
+      <div class="card-body">
+        {% if emergency_categories %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th class="text-end">Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in emergency_categories %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td class="text-end"><strong>{{ item.count }}</strong></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No emergency data recorded in the last 30 days.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="fas fa-screwdriver-wrench me-2"></i>Complaint Categories (30 Days)</div>
+      <div class="card-body">
+        {% if complaint_categories %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th class="text-end">Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in complaint_categories %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td class="text-end"><strong>{{ item.count }}</strong></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No complaint data recorded in the last 30 days.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <i class="fas fa-chart-line me-2"></i>Performance Trends (Last 30 Days)
-            </div>
-            <div class="card-body">
-                <div class="row text-center g-4">
-                    <div class="col-md-4">
-                        <div class="display-6 fw-bold text-primary">{{ resolved_emergencies }}</div>
-                        <div class="text-muted">Emergencies Resolved</div>
-                        <small class="text-success">Avg: {{ avg_response_time }} min response</small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="display-6 fw-bold text-warning">{{ resolved_complaints }}</div>
-                        <div class="text-muted">Complaints Resolved</div>
-                        <small class="text-success">Avg: {{ avg_resolution_time }} hrs resolution</small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="display-6 fw-bold text-success">{{ sla_compliance }}%</div>
-                        <div class="text-muted">SLA Compliance</div>
-                        <small class="text-muted">Target: 90%+</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="fas fa-people-group me-2"></i>Emergency Team Workload</div>
+      <div class="card-body">
+        {% if emergency_team_workload %}
+        <ul class="list-group list-group-flush">
+          {% for team in emergency_team_workload %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span>{{ team.name }}</span>
+            <span class="badge bg-primary rounded-pill">{{ team.assignments }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">No active emergency assignments right now.</p>
+        {% endif %}
+      </div>
     </div>
-    
-    <div class="col-lg-4">
-        <div class="card h-100">
-            <div class="card-header bg-danger text-white">
-                <i class="fas fa-bell me-2"></i>Active Incidents & Alerts
-            </div>
-            <div class="card-body">
-                <div class="mb-4 text-center">
-                    <div class="display-5 fw-bold text-primary">{{ active_emergencies }}</div>
-                    <div class="text-muted">Active Emergencies</div>
-                </div>
-                <div class="mb-4 text-center">
-                    <div class="display-5 fw-bold text-warning">{{ active_complaints }}</div>
-                    <div class="text-muted">Active Complaints</div>
-                </div>
-                <div class="alert alert-warning text-center mb-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>{{ alerts_count }} Alerts</strong><br>
-                    <small>{{ delayed_emergencies }} delayed emergencies<br>{{ delayed_complaints }} delayed complaints</small>
-                </div>
-            </div>
-        </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="fas fa-people-carry-box me-2"></i>Utility Team Workload</div>
+      <div class="card-body">
+        {% if utility_team_workload %}
+        <ul class="list-group list-group-flush">
+          {% for team in utility_team_workload %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span>{{ team.name }}</span>
+            <span class="badge bg-warning text-dark rounded-pill">{{ team.assignments }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">No active utility assignments right now.</p>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

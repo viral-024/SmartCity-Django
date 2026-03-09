@@ -3,93 +3,144 @@
 {% block title %}Citizen Dashboard - SmartCity EMS{% endblock %}
 
 {% block dashboard_content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2><i class="fas fa-home me-2"></i>Welcome, {{ user.username }}!</h2>
-        <p class="text-muted">Your SmartCity Emergency & Utility Management Portal</p>
-    </div>
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+  <div>
+    <h2 class="mb-1"><i class="fas fa-house me-2 text-primary"></i>Citizen Dashboard</h2>
+    <p class="text-muted mb-0">Welcome back, {{ user.username }}. Track requests and raise new issues quickly.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'emergency:report_emergency' %}" class="btn btn-danger">
+      <i class="fas fa-triangle-exclamation me-1"></i>Emergency
+    </a>
+    <a href="{% url 'utilities:submit_complaint' %}" class="btn btn-warning">
+      <i class="fas fa-screwdriver-wrench me-1"></i>Utility Issue
+    </a>
+  </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card primary">
-            <i class="fas fa-bell fa-2x mb-3"></i>
-            <div class="stat-number">{{ pending_emergencies }}</div>
-            <div class="stat-label">Pending Emergencies</div>
-        </div>
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card danger h-100">
+      <div class="stat-number">{{ open_emergencies }}</div>
+      <div class="stat-label">Open Emergencies</div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card warning">
-            <i class="fas fa-tools fa-2x mb-3"></i>
-            <div class="stat-number">{{ pending_complaints }}</div>
-            <div class="stat-label">Open Complaints</div>
-        </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card warning h-100">
+      <div class="stat-number">{{ open_complaints }}</div>
+      <div class="stat-label">Open Complaints</div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card success">
-            <i class="fas fa-check-circle fa-2x mb-3"></i>
-            <div class="stat-number">{{ resolved_requests }}</div>
-            <div class="stat-label">Resolved Requests</div>
-        </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card success h-100">
+      <div class="stat-number">{{ resolved_requests }}</div>
+      <div class="stat-label">Resolved Requests</div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card info">
-            <i class="fas fa-history fa-2x mb-3"></i>
-            <div class="stat-number">{{ total_requests }}</div>
-            <div class="stat-label">Total Requests</div>
-        </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card info h-100">
+      <div class="stat-number">{{ attention_required }}</div>
+      <div class="stat-label">Needs Attention</div>
     </div>
+  </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-8 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-bolt me-2"></i>Quick Actions
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <a href="{% url 'emergency:report_emergency' %}" class="btn btn-danger w-100 py-3">
-                            <i class="fas fa-ambulance me-2"></i>Report Emergency
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="{% url 'utilities:submit_complaint' %}" class="btn btn-warning w-100 py-3">
-                            <i class="fas fa-tools me-2"></i>Report Utility Issue
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="{% url 'emergency:my_requests' %}" class="btn btn-info w-100 py-3">
-                            <i class="fas fa-map-marked-alt me-2"></i>Track Emergencies
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="{% url 'utilities:my_complaints' %}" class="btn btn-success w-100 py-3">
-                            <i class="fas fa-history me-2"></i>Track Complaints
-                        </a>
-                    </div>
-                </div>
-            </div>
+<div class="row g-4">
+  <div class="col-xl-6">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-ambulance me-2"></i>Recent Emergencies</span>
+        <a href="{% url 'emergency:my_requests' %}" class="btn btn-sm btn-light">View all</a>
+      </div>
+      <div class="card-body">
+        {% if recent_emergencies %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for req in recent_emergencies %}
+              <tr>
+                <td><strong>#{{ req.id }}</strong></td>
+                <td>{{ req.emergency_type.name }}</td>
+                <td>
+                  {% if req.priority == 'critical' %}<span class="badge bg-danger">Critical</span>{% endif %}
+                  {% if req.priority == 'high' %}<span class="badge bg-warning text-dark">High</span>{% endif %}
+                  {% if req.priority == 'medium' %}<span class="badge bg-info text-dark">Medium</span>{% endif %}
+                  {% if req.priority == 'low' %}<span class="badge bg-success">Low</span>{% endif %}
+                </td>
+                <td>
+                  {% if req.status == 'pending' %}<span class="badge bg-secondary">Pending</span>{% endif %}
+                  {% if req.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+                  {% if req.status == 'en_route' %}<span class="badge bg-info">En Route</span>{% endif %}
+                  {% if req.status == 'on_scene' %}<span class="badge bg-warning text-dark">On Scene</span>{% endif %}
+                  {% if req.status == 'resolved' %}<span class="badge bg-success">Resolved</span>{% endif %}
+                  {% if req.status == 'cancelled' %}<span class="badge bg-dark">Cancelled</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        {% else %}
+        <p class="text-muted mb-0">No emergency requests yet.</p>
+        {% endif %}
+      </div>
     </div>
-    
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-info-circle me-2"></i>Important Notices
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Water Supply:</strong> Scheduled maintenance on Main Street tomorrow.
-                </div>
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>Traffic Alert:</strong> Road closure on Highway 1 until Friday.
-                </div>
-            </div>
+  </div>
+
+  <div class="col-xl-6">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-list-check me-2"></i>Recent Utility Complaints</span>
+        <a href="{% url 'utilities:my_complaints' %}" class="btn btn-sm btn-light">View all</a>
+      </div>
+      <div class="card-body">
+        {% if recent_complaints %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for comp in recent_complaints %}
+              <tr>
+                <td><strong>{{ comp.complaint_id }}</strong></td>
+                <td>{{ comp.utility_type.name }}</td>
+                <td>
+                  {% if comp.priority == 'high' %}<span class="badge bg-danger">High</span>{% endif %}
+                  {% if comp.priority == 'medium' %}<span class="badge bg-warning text-dark">Medium</span>{% endif %}
+                  {% if comp.priority == 'low' %}<span class="badge bg-success">Low</span>{% endif %}
+                </td>
+                <td>
+                  {% if comp.status == 'pending' %}<span class="badge bg-secondary">Pending</span>{% endif %}
+                  {% if comp.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+                  {% if comp.status == 'in_progress' %}<span class="badge bg-info">In Progress</span>{% endif %}
+                  {% if comp.status == 'resolved' %}<span class="badge bg-success">Resolved</span>{% endif %}
+                  {% if comp.status == 'escalated' %}<span class="badge bg-warning text-dark">Escalated</span>{% endif %}
+                  {% if comp.status == 'rejected' %}<span class="badge bg-dark">Rejected</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        {% else %}
+        <p class="text-muted mb-0">No complaints submitted yet.</p>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

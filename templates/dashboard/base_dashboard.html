@@ -4,298 +4,375 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Dashboard - SmartCity EMS{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
+      :root {
+        --bg: #f4f7fb;
+        --ink: #0f172a;
+        --surface: #ffffff;
+        --border: #dce4ef;
+        --radius: 16px;
+      }
+
       body {
-        background-color: #f5f7fb;
-        font-family: Arial, sans-serif;
+        margin: 0;
+        background:
+          radial-gradient(circle at 8% 10%, #dbeafe 0, transparent 28%),
+          radial-gradient(circle at 92% 14%, #ccfbf1 0, transparent 26%),
+          var(--bg);
+        color: var(--ink);
+        font-family: 'Manrope', sans-serif;
       }
-      .navbar {
-        background: linear-gradient(135deg, #1e40af, #2563eb);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .navbar-brand,
+      .stat-number {
+        font-family: 'Space Grotesk', sans-serif;
       }
-      .sidebar {
-        background-color: white;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
-        height: calc(100vh - 56px);
-        position: fixed;
-        top: 56px;
-        left: 0;
-        padding: 0;
-        z-index: 100;
+
+      .topbar {
+        background: linear-gradient(120deg, #0f172a, #1e293b);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
-      .sidebar .nav-link {
-        color: #4b5563;
-        padding: 12px 20px;
-        font-weight: 500;
-        border-left: 3px solid transparent;
-        margin: 4px 0;
+
+      .topbar .navbar-brand {
+        font-weight: 700;
+        letter-spacing: 0.2px;
       }
-      .sidebar .nav-link:hover,
-      .sidebar .nav-link.active {
-        color: #2563eb;
-        background-color: #f0f7ff;
-        border-left: 3px solid #2563eb;
+
+      .app-frame {
+        display: flex;
+        min-height: calc(100vh - 64px);
       }
-      .main-content {
-        margin-left: 240px;
-        padding: 20px;
+
+      .sidebar-shell {
+        --bs-offcanvas-width: 270px;
+        background-color: #0b1220;
+        color: #cbd5e1;
       }
+
+      .sidebar-shell.offcanvas-start,
+      .sidebar-shell.offcanvas-md {
+        background-color: #0b1220 !important;
+      }
+
+      .sidebar-shell .offcanvas-body {
+        display: block;
+      }
+
+      .sidebar-shell .offcanvas-header {
+        border-bottom: 1px solid rgba(203, 213, 225, 0.18);
+      }
+
+      .sidebar-shell .role-chip {
+        background: rgba(20, 184, 166, 0.16);
+        color: #5eead4;
+        border: 1px solid rgba(94, 234, 212, 0.35);
+      }
+
+      .sidebar-shell .nav-link {
+        color: #cbd5e1;
+        border-radius: 10px;
+        margin-bottom: 0.35rem;
+        padding: 0.62rem 0.8rem;
+        transition: all 0.2s ease;
+      }
+
+      .sidebar-shell .nav-link:hover,
+      .sidebar-shell .nav-link.active {
+        background: rgba(148, 163, 184, 0.15);
+        color: #ecfeff;
+        transform: translateX(2px);
+      }
+
+      .sidebar-shell .nav-section {
+        color: #8fa0b8;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+
+      .main-shell {
+        flex: 1;
+        padding: 1.35rem;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+      }
+
       .card {
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin-bottom: 20px;
-        border: none;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
       }
+
       .card-header {
-        background: linear-gradient(to right, #2563eb, #1e40af);
-        color: white;
+        background: linear-gradient(120deg, #0f766e, #0f766e);
+        color: #fff;
+        border-radius: var(--radius) var(--radius) 0 0 !important;
+        border-bottom: 0;
         font-weight: 600;
-        border-radius: 10px 10px 0 0 !important;
-        padding: 15px 20px;
       }
+
       .stat-card {
-        text-align: center;
-        padding: 20px;
-        border-radius: 10px;
-        color: white;
-        height: 100%;
+        border-radius: var(--radius);
+        padding: 1rem;
+        color: #fff;
+        border: 0;
       }
+
       .stat-card.primary {
-        background: linear-gradient(135deg, #2563eb, #1e40af);
+        background: linear-gradient(120deg, #0f766e, #14b8a6);
       }
+
       .stat-card.success {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: linear-gradient(120deg, #15803d, #16a34a);
       }
+
       .stat-card.warning {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
+        background: linear-gradient(120deg, #b45309, #d97706);
       }
+
       .stat-card.danger {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
+        background: linear-gradient(120deg, #b91c1c, #dc2626);
       }
+
       .stat-card.info {
-        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        background: linear-gradient(120deg, #1d4ed8, #3b82f6);
       }
+
       .stat-number {
         font-size: 2rem;
         font-weight: 700;
-        margin: 10px 0;
+        line-height: 1.1;
       }
+
       .stat-label {
-        font-size: 1rem;
-        opacity: 0.95;
+        opacity: 0.92;
+        font-size: 0.93rem;
       }
-      @media (max-width: 768px) {
-        .sidebar {
-          position: relative;
-          height: auto;
-          width: 100%;
+
+      .table > :not(caption) > * > * {
+        vertical-align: middle;
+      }
+
+      .table thead th {
+        color: #334155;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      @media (min-width: 768px) {
+        .sidebar-shell {
+          position: sticky;
+          top: 64px;
+          width: 270px;
+          min-width: 270px;
+          height: calc(100vh - 64px);
+          border-right: 1px solid rgba(203, 213, 225, 0.18);
         }
-        .main-content {
-          margin-left: 0;
+
+        .main-shell {
+          padding: 1.7rem;
         }
       }
     </style>
+    {% block extra_head %}{% endblock %}
   </head>
   <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container-fluid">
-        <a
-          class="navbar-brand d-flex align-items-center"
-          href="{% url 'dashboard:dashboard' %}"
-        >
-          <i class="fas fa-city me-2"></i>
-          <span>SmartCity EMS</span>
-        </a>
-        <div class="d-flex align-items-center">
-          <span class="text-white me-3">
-            <i class="fas fa-user me-1"></i> {{ user.username }}
-            <span class="badge bg-light text-dark ms-2"
-              >{{ user.get_role_display }}</span
-            >
+    <nav class="navbar navbar-dark topbar px-3">
+      <div class="container-fluid px-0">
+        <div class="d-flex align-items-center gap-2">
+          <button
+            class="btn btn-outline-light btn-sm d-md-none"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#sidebarNav"
+            aria-controls="sidebarNav"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+          <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard:dashboard' %}">
+            <i class="fas fa-city"></i>
+            <span>SmartCity EMS</span>
+          </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 gap-md-3 text-white">
+          <span class="d-none d-sm-inline">
+            <i class="fas fa-user me-1"></i>{{ user.username }}
           </span>
-          <a href="{% url 'accounts:logout' %}" class="btn btn-outline-light">
-            <i class="fas fa-sign-out-alt me-1"></i> Logout
+          <span class="badge bg-light text-dark">{{ user.get_role_display }}</span>
+          <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-light">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
           </a>
         </div>
       </div>
     </nav>
 
-    <div class="container-fluid">
-      <div class="row">
-        <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
-          <div class="position-sticky pt-3">
-            <ul class="nav flex-column">
-              {% if user.role == 'citizen' %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/dashboard/citizen/' in request.path %}active{% endif %}"
-                  href="{% url 'dashboard:citizen' %}"
-                >
-                  <i class="fas fa-home"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'emergency:my_requests' %}">
-                  <i class="fas fa-history"></i> Emergency Requests
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'utilities:my_complaints' %}">
-                  <i class="fas fa-history"></i> Utility Complaints
-                </a>
-              </li>
-
-              {% elif user.role == 'government_authority' %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/gov/' in request.path %}active{% endif %}"
-                  href="{% url 'gov_authority:dashboard' %}"
-                >
-                  <i class="fas fa-chart-line"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/gov/staff/' in request.path %}active{% endif %}"
-                  href="{% url 'gov_authority:staff_list' %}"
-                >
-                  <i class="fas fa-users"></i> Staff Management
-                </a>
-              </li>
-              {% comment %} <li class="nav-item">
-                <a
-                  class="nav-link {% if '/gov/escalations/' in request.path %}active{% endif %}"
-                  href="{% url 'gov_authority:escalations' %}"
-                >
-                  <i class="fas fa-exclamation-triangle"></i> Escalations
-                </a>
-              </li> {% endcomment %}
-
-              {% elif user.role == 'utility_officer' %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/utilities/officer/' in request.path %}active{% endif %}"
-                  href="{% url 'utilities:officer_dashboard' %}"
-                >
-                  <i class="fas fa-tools"></i> Dashboard
-                </a>
-              </li>
-              {% comment %} <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-chart-bar"></i> Reports
-                </a>
-              </li> {% endcomment %}
-
-              {% elif user.role == 'emergency_operator' %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}"
-                  href="{% url 'emergency:operator_dashboard' %}"
-                >
-                  <i class="fas fa-ambulance"></i> Dashboard
-                </a>
-              </li>
-
-              {% elif user.role == 'team_admin' %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/team-admin/workers/' in request.path or '/team-admin/' == request.path %}active{% endif %}"
-                  href="{% url 'team_admin:manage_workers' %}"
-                >
-                  <i class="fas fa-user-tie"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/team-admin/workers/' in request.path %}active{% endif %}"
-                  href="{% url 'team_admin:manage_workers' %}"
-                >
-                  <i class="fas fa-users"></i> Manage Workers
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/team-admin/emergency-teams/' in request.path %}active{% endif %}"
-                  href="{% url 'team_admin:manage_emergency_teams' %}"
-                >
-                  <i class="fas fa-ambulance"></i> Emergency Teams
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/team-admin/utility-teams/' in request.path %}active{% endif %}"
-                  href="{% url 'team_admin:manage_utility_teams' %}"
-                >
-                  <i class="fas fa-tools"></i> Utility Teams
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/team-admin/vehicles/' in request.path %}active{% endif %}"
-                  href="{% url 'team_admin:manage_vehicles' %}"
-                >
-                  <i class="fas fa-truck"></i> Manage Vehicles
-                </a>
-              </li>
-
-              {% elif user.role == 'worker' %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if '/dashboard/worker/' in request.path %}active{% endif %}"
-                  href="{% url 'dashboard:worker' %}"
-                >
-                  <i class="fas fa-user"></i> Dashboard
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-tasks"></i> My Tasks
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-history"></i> Task History
-                </a>
-              </li>
-
-              {% endif %}
-            </ul>
+    <div class="app-frame">
+      <aside
+        class="offcanvas-md offcanvas-start sidebar-shell"
+        tabindex="-1"
+        id="sidebarNav"
+        aria-labelledby="sidebarNavLabel"
+      >
+        <div class="offcanvas-header d-md-none">
+          <h5 class="offcanvas-title" id="sidebarNavLabel">Navigation</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body px-3 py-3">
+          <div class="role-chip rounded-3 px-3 py-2 mb-3 small">
+            Signed in as <strong>{{ user.get_role_display }}</strong>
           </div>
-        </nav>
 
-        <!-- Main Content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
-          {% if messages %}
-          <div class="container">
-            {% for message in messages %}
-            <div
-              class="alert alert-{{ message.tags }} alert-dismissible fade show"
-              role="alert"
-            >
-              <i class="fas fa-{{ message.tags }} me-2"></i>{{ message }}
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-              ></button>
-            </div>
-            {% endfor %}
+          <ul class="nav flex-column">
+            {% if user.role == 'citizen' %}
+            <li class="nav-section">Citizen</li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/dashboard/citizen/' in request.path %}active{% endif %}" href="{% url 'dashboard:citizen' %}">
+                <i class="fas fa-house me-2"></i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/emergency/report/' in request.path %}active{% endif %}" href="{% url 'emergency:report_emergency' %}">
+                <i class="fas fa-triangle-exclamation me-2"></i>Report Emergency
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/utilities/submit/' in request.path %}active{% endif %}" href="{% url 'utilities:submit_complaint' %}">
+                <i class="fas fa-screwdriver-wrench me-2"></i>Report Utility Issue
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/emergency/my-requests/' in request.path %}active{% endif %}" href="{% url 'emergency:my_requests' %}">
+                <i class="fas fa-ambulance me-2"></i>My Emergencies
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/utilities/my-complaints/' in request.path %}active{% endif %}" href="{% url 'utilities:my_complaints' %}">
+                <i class="fas fa-list-check me-2"></i>My Complaints
+              </a>
+            </li>
+
+            {% elif user.role == 'government_authority' %}
+            <li class="nav-section">Authority</li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/gov/' %}active{% endif %}" href="{% url 'gov_authority:dashboard' %}">
+                <i class="fas fa-chart-line me-2"></i>City Overview
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/gov/staff/' in request.path %}active{% endif %}" href="{% url 'gov_authority:staff_list' %}">
+                <i class="fas fa-users-gear me-2"></i>Staff Accounts
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/gov/escalations/' in request.path %}active{% endif %}" href="{% url 'gov_authority:escalations' %}">
+                <i class="fas fa-triangle-exclamation me-2"></i>Escalations
+              </a>
+            </li>
+
+            {% elif user.role == 'utility_officer' %}
+            <li class="nav-section">Utility Officer</li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/utilities/officer/' in request.path %}active{% endif %}" href="{% url 'utilities:officer_dashboard' %}">
+                <i class="fas fa-screwdriver-wrench me-2"></i>Dashboard
+              </a>
+            </li>
+
+            {% elif user.role == 'emergency_operator' %}
+            <li class="nav-section">Emergency Ops</li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/emergency/operator/' in request.path %}active{% endif %}" href="{% url 'emergency:operator_dashboard' %}">
+                <i class="fas fa-ambulance me-2"></i>Operations
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/emergency/manage-teams/' in request.path %}active{% endif %}" href="{% url 'emergency:manage_teams' %}">
+                <i class="fas fa-people-group me-2"></i>Manage Teams
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/emergency/manage-vehicles/' in request.path %}active{% endif %}" href="{% url 'emergency:manage_vehicles' %}">
+                <i class="fas fa-truck-medical me-2"></i>Manage Vehicles
+              </a>
+            </li>
+
+            {% elif user.role == 'team_admin' %}
+            <li class="nav-section">Team Admin</li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/team-admin/workers/' in request.path %}active{% endif %}" href="{% url 'team_admin:manage_workers' %}">
+                <i class="fas fa-users me-2"></i>Manage Workers
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/team-admin/emergency-teams/' in request.path %}active{% endif %}" href="{% url 'team_admin:manage_emergency_teams' %}">
+                <i class="fas fa-people-roof me-2"></i>Emergency Teams
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/team-admin/utility-teams/' in request.path %}active{% endif %}" href="{% url 'team_admin:manage_utility_teams' %}">
+                <i class="fas fa-toolbox me-2"></i>Utility Teams
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/team-admin/vehicles/' in request.path %}active{% endif %}" href="{% url 'team_admin:manage_vehicles' %}">
+                <i class="fas fa-truck me-2"></i>Vehicles
+              </a>
+            </li>
+
+            {% elif user.role == 'worker' %}
+            <li class="nav-section">Worker</li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/dashboard/worker/' in request.path %}active{% endif %}" href="{% url 'dashboard:worker' %}">
+                <i class="fas fa-helmet-safety me-2"></i>My Dashboard
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </aside>
+
+      <main class="main-shell">
+        {% if messages %}
+        <div class="mb-3">
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show panel" role="alert">
+            {% if 'success' in message.tags %}<i class="fas fa-circle-check me-2"></i>{% endif %}
+            {% if 'error' in message.tags or 'danger' in message.tags %}<i class="fas fa-circle-xmark me-2"></i>{% endif %}
+            {% if 'warning' in message.tags %}<i class="fas fa-triangle-exclamation me-2"></i>{% endif %}
+            {% if 'info' in message.tags %}<i class="fas fa-circle-info me-2"></i>{% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
           </div>
-          {% endif %} {% block dashboard_content %}{% endblock %}
-        </main>
-      </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block dashboard_content %}{% endblock %}
+      </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
   </body>
 </html>

@@ -1,215 +1,167 @@
-{% extends 'dashboard/base_dashboard.html' %} {% block title %}Emergency
-Operations Dashboard - SmartCity EMS{% endblock %} {% block dashboard_content %}
-<div class="row mb-4">
-  <div class="col-12">
-    <h2><i class="fas fa-ambulance me-2"></i>Emergency Operations Dashboard</h2>
-    <p class="text-muted">Monitor and manage emergency response operations</p>
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Emergency Operations Dashboard - SmartCity EMS{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+  <div>
+    <h2 class="mb-1"><i class="fas fa-ambulance me-2 text-danger"></i>Emergency Operations</h2>
+    <p class="text-muted mb-0">Monitor pending incidents, assign teams, and track active deployments.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'emergency:manage_teams' %}" class="btn btn-outline-primary">Manage Teams</a>
+    <a href="{% url 'emergency:manage_vehicles' %}" class="btn btn-outline-secondary">Manage Vehicles</a>
   </div>
 </div>
 
-<!-- Statistics cards -->
-<div class="row g-4 mb-4">
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card danger">
-            <i class="fas fa-bell fa-2x mb-3"></i>
-            <div class="stat-number">{{ active_emergencies }}</div>
-            <div class="stat-label">Active Emergencies</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card success">
-            <i class="fas fa-truck fa-2x mb-3"></i>
-            <div class="stat-number">{{ available_vehicles }}</div>
-            <div class="stat-label">Available Vehicles</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card warning">
-            <i class="fas fa-location-dot fa-2x mb-3"></i>
-            <div class="stat-number">{{ on_scene }}</div>
-            <div class="stat-label">On Scene</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card primary">
-            <i class="fas fa-check-circle fa-2x mb-3"></i>
-            <div class="stat-number">{{ resolved_today }}</div>
-            <div class="stat-label">Resolved Today</div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-8 mb-4">
-    <div class="card">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <span
-          ><i class="fas fa-exclamation-triangle me-2"></i>Pending
-          Emergencies</span
-        >
-        <span class="badge bg-danger">{{ total_pending }} Pending</span>
-      </div>
-      <div class="card-body">
-        {% if pending_emergencies %}
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-light">
-              <tr>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Location</th>
-                <th>Submitted</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for emergency in pending_emergencies %}
-              <tr>
-                <td><strong>#{{ emergency.id }}</strong></td>
-                <td>
-                  <i
-                    class="fas fa-{{ emergency.emergency_type.icon }} me-1"
-                  ></i>
-                  {{ emergency.emergency_type.name }}
-                </td>
-                <td>
-                  {% if emergency.priority == 'critical' %}
-                  <span class="badge bg-danger">Critical</span>
-                  {% elif emergency.priority == 'high' %}
-                  <span class="badge bg-warning">High</span>
-                  {% elif emergency.priority == 'medium' %}
-                  <span class="badge bg-info">Medium</span>
-                  {% else %}
-                  <span class="badge bg-success">Low</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <span class="badge bg-secondary">Pending</span>
-                </td>
-                <td>{{ emergency.address|truncatewords:5 }}</td>
-                <td>{{ emergency.created_at|date:"h:i A" }}</td>
-                <td>
-                  <a
-                    href="{% url 'emergency:assign_team' emergency.id %}"
-                    class="btn btn-sm btn-primary"
-                  >
-                    <i class="fas fa-users me-1"></i>Assign Team
-                  </a>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% else %}
-        <div class="text-center py-4">
-          <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-          <h5 class="text-success">No Pending Emergencies</h5>
-          <p class="text-muted">
-            All emergencies have been assigned or resolved.
-          </p>
-        </div>
-        {% endif %}
-      </div>
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card danger h-100">
+      <div class="stat-number">{{ total_pending }}</div>
+      <div class="stat-label">Total Pending</div>
     </div>
   </div>
-
-  <div class="col-lg-4 mb-4">
-    <div class="card">
-      <div class="card-header">
-        <i class="fas fa-cogs me-2"></i>Quick Actions
-      </div>
-      <div class="card-body">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <a
-              href="{% url 'emergency:operator_dashboard' %}"
-              class="btn btn-primary w-100 py-3"
-            >
-              <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-            </a>
-          </div>
-          
-        </div>
-      </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card warning h-100">
+      <div class="stat-number">{{ critical_pending }}</div>
+      <div class="stat-label">Critical Pending</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card info h-100">
+      <div class="stat-number">{{ total_active }}</div>
+      <div class="stat-label">Active Team Assignments</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card success h-100">
+      <div class="stat-number">{{ available_teams }}</div>
+      <div class="stat-label">Available Teams</div>
     </div>
   </div>
 </div>
 
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-truck-medical me-2"></i>Active Team Assignments</span>
-                <span class="badge bg-info">{{ active_assignments.count }} Active</span>
-            </div>
-            <div class="card-body">
-                {% if active_assignments %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Assignment ID</th>
-                                <th>Emergency ID</th>
-                                <th>Team</th>
-                                <th>Team Leader</th>
-                                <th>Status</th>
-                                <th>Assigned</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for assignment in active_assignments %}
-                            <tr>
-                                <td><strong>#{{ assignment.id }}</strong></td>
-                                <td>
-                                    <a href="{% url 'emergency:detail' assignment.emergency_request.id %}">
-                                        #{{ assignment.emergency_request.id }}
-                                    </a>
-                                </td>
-                                <td><strong>{{ assignment.team.name }}</strong></td>
-                                <td>
-                                    {% if assignment.team.team_leader %}
-                                        {{ assignment.team.team_leader.username }}
-                                    {% else %}
-                                        <span class="text-muted">No Leader</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if assignment.status == 'assigned' %}
-                                    <span class="badge bg-primary">Assigned</span>
-                                    {% elif assignment.status == 'en_route' %}
-                                    <span class="badge bg-info">En Route</span>
-                                    {% elif assignment.status == 'on_scene' %}
-                                    <span class="badge bg-warning">On Scene</span>
-                                    {% else %}
-                                    <span class="badge bg-success">Completed</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ assignment.assigned_at|date:"h:i A" }}</td>
-                                <td>
-                                    <a href="{% url 'emergency:update_team_status' assignment.id %}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit me-1"></i>Update
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-truck-medical fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Active Team Assignments</h5>
-                    <p class="text-muted">No teams are currently dispatched.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+<div class="card mb-4">
+  <div class="card-header"><i class="fas fa-filter me-2"></i>Filter Queue</div>
+  <div class="card-body">
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Priority</label>
+        <select name="priority" class="form-select">
+          <option value="">All priorities</option>
+          {% for value, label in priority_options %}
+          <option value="{{ value }}" {% if selected_priority == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Search</label>
+        <input type="text" class="form-control" name="q" value="{{ search_query }}" placeholder="ID, citizen, type, area" />
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i>Apply</button>
+        <a href="{% url 'emergency:operator_dashboard' %}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-triangle-exclamation me-2"></i>Pending Emergencies</span>
+    <span class="badge bg-light text-dark">{{ filtered_pending_count }} shown</span>
+  </div>
+  <div class="card-body">
+    {% if pending_emergencies %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Citizen</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Location</th>
+            <th>Created</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for emergency in pending_emergencies %}
+          <tr>
+            <td>#{{ emergency.id }}</td>
+            <td>{{ emergency.citizen.username }}</td>
+            <td>{{ emergency.emergency_type.name }}</td>
+            <td>
+              {% if emergency.priority == 'critical' %}<span class="badge bg-danger">Critical</span>{% endif %}
+              {% if emergency.priority == 'high' %}<span class="badge bg-warning text-dark">High</span>{% endif %}
+              {% if emergency.priority == 'medium' %}<span class="badge bg-info text-dark">Medium</span>{% endif %}
+              {% if emergency.priority == 'low' %}<span class="badge bg-success">Low</span>{% endif %}
+            </td>
+            <td>{{ emergency.address|truncatewords:6 }}</td>
+            <td>{{ emergency.created_at|date:"d M, h:i A" }}</td>
+            <td>
+              <a href="{% url 'emergency:assign_team' emergency.id %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-people-group me-1"></i>Assign Team
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+    {% else %}
+    <p class="text-muted mb-0">No pending emergencies match this filter.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-truck-medical me-2"></i>Active Assignments</span>
+    <span class="badge bg-light text-dark">{{ filtered_active_count }} shown</span>
+  </div>
+  <div class="card-body">
+    {% if active_assignments %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Assignment</th>
+            <th>Emergency</th>
+            <th>Team</th>
+            <th>Leader</th>
+            <th>Status</th>
+            <th>Assigned</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for assignment in active_assignments %}
+          <tr>
+            <td>#{{ assignment.id }}</td>
+            <td>#{{ assignment.emergency_request.id }}</td>
+            <td>{{ assignment.team.name }}</td>
+            <td>{{ assignment.team.team_leader.username|default:'Not assigned' }}</td>
+            <td>
+              {% if assignment.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+              {% if assignment.status == 'en_route' %}<span class="badge bg-info">En Route</span>{% endif %}
+              {% if assignment.status == 'on_scene' %}<span class="badge bg-warning text-dark">On Scene</span>{% endif %}
+            </td>
+            <td>{{ assignment.assigned_at|date:"d M, h:i A" }}</td>
+            <td>
+              <a href="{% url 'emergency:update_team_status' assignment.id %}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-pen me-1"></i>Update
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">No active assignments match this filter.</p>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

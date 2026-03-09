@@ -3,252 +3,180 @@
 {% block title %}Worker Dashboard - SmartCity EMS{% endblock %}
 
 {% block dashboard_content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2><i class="fas fa-user me-2"></i>Welcome, {{ user.username }}!</h2>
-        <p class="text-muted">Your team assignments and active tasks</p>
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+  <div>
+    <h2 class="mb-1"><i class="fas fa-helmet-safety me-2 text-primary"></i>Worker Dashboard</h2>
+    <p class="text-muted mb-0">Assignments, team membership, and current field workload.</p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card primary h-100">
+      <div class="stat-number">{{ team_count }}</div>
+      <div class="stat-label">Teams</div>
     </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card danger h-100">
+      <div class="stat-number">{{ total_assignments }}</div>
+      <div class="stat-label">Active Assignments</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card info h-100">
+      <div class="stat-number">{{ emergency_task_count }}</div>
+      <div class="stat-label">Emergency Tasks</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card warning h-100">
+      <div class="stat-number">{{ utility_task_count }}</div>
+      <div class="stat-label">Utility Tasks</div>
+    </div>
+  </div>
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card primary">
-            <i class="fas fa-users fa-2x mb-3"></i>
-            <div class="stat-number">{{ teams.count }}</div>
-            <div class="stat-label">Your Teams</div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-people-group me-2"></i>Your Teams
+      </div>
+      <div class="card-body">
+        {% if teams %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Size</th>
+                <th>Leader</th>
+                <th>Vehicles</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for team in teams %}
+              <tr>
+                <td><strong>{{ team.name }}</strong></td>
+                <td>{{ team.team_size }}</td>
+                <td>
+                  {% if team.team_leader == user %}
+                  <span class="badge bg-success">You (Lead)</span>
+                  {% elif team.team_leader %}
+                  {{ team.team_leader.username }}
+                  {% else %}
+                  <span class="text-muted">Not assigned</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% for vehicle in team.vehicles.all %}
+                  <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle">{{ vehicle.vehicle_number }}</span>
+                  {% empty %}
+                  <span class="text-muted">None</span>
+                  {% endfor %}
+                </td>
+                <td>
+                  {% if team.is_available %}
+                  <span class="badge bg-success">Available</span>
+                  {% else %}
+                  <span class="badge bg-warning text-dark">On Assignment</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        {% else %}
+        <p class="text-muted mb-0">You are not assigned to any team yet.</p>
+        {% endif %}
+      </div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card danger">
-            <i class="fas fa-bell fa-2x mb-3"></i>
-            <div class="stat-number">{{ total_assignments }}</div>
-            <div class="stat-label">Active Assignments</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card info">
-            <i class="fas fa-ambulance fa-2x mb-3"></i>
-            <div class="stat-number">{{ active_emergencies.count }}</div>
-            <div class="stat-label">Emergency Tasks</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card warning">
-            <i class="fas fa-tools fa-2x mb-3"></i>
-            <div class="stat-number">{{ active_complaints.count }}</div>
-            <div class="stat-label">Utility Tasks</div>
-        </div>
-    </div>
+  </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-8 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-users me-2"></i>Your Teams
-            </div>
-            <div class="card-body">
-                {% if teams %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Team Name</th>
-                                <th>Size</th>
-                                <th>Vehicles</th>
-                                <th>Status</th>
-                                <th>Leader</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for team in teams %}
-                            <tr>
-                                <td><strong>{{ team.name }}</strong></td>
-                                <td>{{ team.team_size }}</td>
-                                <td>
-                                    {% for vehicle in team.vehicles.all %}
-                                    <span class="badge bg-primary">{{ vehicle.vehicle_number }}</span>
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% if team.is_available %}
-                                    <span class="badge bg-success">Available</span>
-                                    {% else %}
-                                    <span class="badge bg-danger">On Assignment</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if team.team_leader == user %}
-                                    <span class="badge bg-success">You (Leader)</span>
-                                    {% elif team.team_leader %}
-                                    {{ team.team_leader.username }}
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-users fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Teams Assigned</h5>
-                    <p class="text-muted">You are not currently assigned to any teams.</p>
-                </div>
-                {% endif %}
-            </div>
+<div class="row g-4">
+  <div class="col-xl-6">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-ambulance me-2"></i>Emergency Assignments</span>
+        <span class="badge bg-light text-dark">{{ emergency_task_count }}</span>
+      </div>
+      <div class="card-body">
+        {% if active_emergency_assignments %}
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Team</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for assignment in active_emergency_assignments %}
+              <tr>
+                <td>#{{ assignment.emergency_request.id }}</td>
+                <td>{{ assignment.emergency_request.emergency_type.name }}</td>
+                <td>{{ assignment.team.name }}</td>
+                <td>
+                  {% if assignment.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+                  {% if assignment.status == 'en_route' %}<span class="badge bg-info">En Route</span>{% endif %}
+                  {% if assignment.status == 'on_scene' %}<span class="badge bg-warning text-dark">On Scene</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        {% else %}
+        <p class="text-muted mb-0">No active emergency tasks.</p>
+        {% endif %}
+      </div>
     </div>
-    
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-cogs me-2"></i>Quick Actions
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="#" class="btn btn-primary">
-                        <i class="fas fa-sync-alt me-1"></i>Update Status
-                    </a>
-                    <a href="#" class="btn btn-warning">
-                        <i class="fas fa-exclamation-triangle me-1"></i>Report Issue
-                    </a>
-                    <a href="#" class="btn btn-info">
-                        <i class="fas fa-history me-1"></i>View History
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  </div>
 
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-bell me-2"></i>Active Emergency Assignments</span>
-                <span class="badge bg-danger">{{ active_emergencies.count }} Active</span>
-            </div>
-            <div class="card-body">
-                {% if active_emergencies %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Type</th>
-                                <th>Team</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for emergency in active_emergencies %}
-                            <tr>
-                                <td><strong>#{{ emergency.id }}</strong></td>
-                                <td>
-                                    <i class="fas fa-{{ emergency.emergency_type.icon }} me-1"></i>
-                                    {{ emergency.emergency_type.name }}
-                                </td>
-                                <td>
-                                    {% for assignment in emergency.team_assignments.all %}
-                                        {{ assignment.team.name }}
-                                    {% endfor %}
-                                </td>
-                                <td>{{ emergency.address|truncatewords:4 }}</td>
-                                <td>
-                                    {% if emergency.status == 'assigned' %}
-                                    <span class="badge bg-primary">Assigned</span>
-                                    {% elif emergency.status == 'en_route' %}
-                                    <span class="badge bg-info">En Route</span>
-                                    {% elif emergency.status == 'on_scene' %}
-                                    <span class="badge bg-warning">On Scene</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit me-1"></i>Update
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                    <h5 class="text-success">No Active Emergency Assignments</h5>
-                    <p class="text-muted">You don't have any active emergency tasks at the moment.</p>
-                </div>
-                {% endif %}
-            </div>
+  <div class="col-xl-6">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-screwdriver-wrench me-2"></i>Utility Assignments</span>
+        <span class="badge bg-light text-dark">{{ utility_task_count }}</span>
+      </div>
+      <div class="card-body">
+        {% if active_utility_assignments %}
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Team</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for assignment in active_utility_assignments %}
+              <tr>
+                <td>{{ assignment.complaint.complaint_id }}</td>
+                <td>{{ assignment.complaint.utility_type.name }}</td>
+                <td>{{ assignment.team.name }}</td>
+                <td>
+                  {% if assignment.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+                  {% if assignment.status == 'in_progress' %}<span class="badge bg-info">In Progress</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        {% else %}
+        <p class="text-muted mb-0">No active utility tasks.</p>
+        {% endif %}
+      </div>
     </div>
-    
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-tools me-2"></i>Active Utility Assignments</span>
-                <span class="badge bg-warning">{{ active_complaints.count }} Active</span>
-            </div>
-            <div class="card-body">
-                {% if active_complaints %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Type</th>
-                                <th>Team</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for complaint in active_complaints %}
-                            <tr>
-                                <td><strong>{{ complaint.complaint_id }}</strong></td>
-                                <td>
-                                    <i class="fas fa-{{ complaint.utility_type.icon }} me-1"></i>
-                                    {{ complaint.utility_type.name }}
-                                </td>
-                                <td>
-                                    {% for assignment in complaint.team_assignments.all %}
-                                        {{ assignment.team.name }}
-                                    {% endfor %}
-                                </td>
-                                <td>{{ complaint.address|truncatewords:4 }}</td>
-                                <td>
-                                    {% if complaint.status == 'assigned' %}
-                                    <span class="badge bg-primary">Assigned</span>
-                                    {% elif complaint.status == 'in_progress' %}
-                                    <span class="badge bg-info">In Progress</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit me-1"></i>Update
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                    <h5 class="text-success">No Active Utility Assignments</h5>
-                    <p class="text-muted">You don't have any active utility tasks at the moment.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 {% endblock %}

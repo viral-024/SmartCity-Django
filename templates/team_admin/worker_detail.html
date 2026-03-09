@@ -1,0 +1,188 @@
+{% extends 'team_admin/base_team_admin.html' %}
+
+{% block title %}Worker Details - SmartCity EMS{% endblock %}
+
+{% block team_admin_content %}
+<div class="row">
+    <div class="col-12 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-id-card me-2"></i>Worker: {{ worker.username }}</h4>
+            <p class="text-muted mb-0">Personal details, team membership, and assignment history.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'team_admin:manage_workers' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Workers
+            </a>
+            <form method="post" action="{% url 'team_admin:update_worker_status' worker.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                {% if worker.is_active %}
+                <input type="hidden" name="status" value="inactive">
+                <button type="submit" class="btn btn-outline-warning" onclick="return confirm('Deactivate worker {{ worker.username }}?');">
+                    <i class="fas fa-user-slash me-1"></i>Deactivate Worker
+                </button>
+                {% else %}
+                <input type="hidden" name="status" value="active">
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="fas fa-user-check me-1"></i>Activate Worker
+                </button>
+                {% endif %}
+            </form>
+            <form method="post" action="{% url 'team_admin:delete_worker' worker.id %}" onsubmit="return confirm('Delete worker {{ worker.username }}? This cannot be undone.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Delete Worker
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-user me-2"></i>Personal Details
+            </div>
+            <div class="card-body">
+                <div class="mb-2"><strong>Full Name:</strong> {{ worker.get_full_name|default:'-' }}</div>
+                <div class="mb-2"><strong>Username:</strong> {{ worker.username }}</div>
+                <div class="mb-2"><strong>Email:</strong> {{ worker.email|default:'-' }}</div>
+                <div class="mb-2"><strong>Phone Number:</strong> {{ worker.phone_number|default:'-' }}</div>
+                <div class="mb-2"><strong>Address:</strong><br>{{ worker.address|default:'-' }}</div>
+                <div class="mb-2"><strong>Date Joined:</strong> {{ worker.date_joined|date:"d M Y, h:i A" }}</div>
+                <div>
+                    <strong>Status:</strong>
+                    {% if worker.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-people-group me-2"></i>Current Team Membership
+            </div>
+            <div class="card-body">
+                <h6>Emergency Teams</h6>
+                <div class="mb-3">
+                    {% for team in worker_emergency_teams %}
+                    <span class="badge bg-primary me-1 mb-1">{{ team.name }}</span>
+                    {% empty %}
+                    <span class="text-muted">Not assigned to emergency teams.</span>
+                    {% endfor %}
+                </div>
+
+                <h6>Utility Teams</h6>
+                <div>
+                    {% for team in worker_utility_teams %}
+                    <span class="badge bg-warning text-dark me-1 mb-1">{{ team.name }}</span>
+                    {% empty %}
+                    <span class="text-muted">Not assigned to utility teams.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-ambulance me-2"></i>Emergency Assignment History</span>
+                <span class="badge bg-light text-dark">{{ emergency_record_count }} record(s)</span>
+            </div>
+            <div class="card-body">
+                {% if emergency_records %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Assignment ID</th>
+                                <th>Emergency ID</th>
+                                <th>Type</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                                <th>Assigned At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in emergency_records %}
+                            <tr>
+                                <td>#{{ record.id }}</td>
+                                <td>#{{ record.emergency_request.id }}</td>
+                                <td>{{ record.emergency_request.emergency_type.name }}</td>
+                                <td>{{ record.team.name }}</td>
+                                <td>
+                                    {% if record.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+                                    {% if record.status == 'en_route' %}<span class="badge bg-info">En Route</span>{% endif %}
+                                    {% if record.status == 'on_scene' %}<span class="badge bg-warning text-dark">On Scene</span>{% endif %}
+                                    {% if record.status == 'completed' %}<span class="badge bg-success">Completed</span>{% endif %}
+                                </td>
+                                <td>{{ record.assigned_at|date:"d M Y, h:i A" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No emergency assignment history found for this worker.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-tools me-2"></i>Utility Assignment History</span>
+                <span class="badge bg-light text-dark">{{ utility_record_count }} record(s)</span>
+            </div>
+            <div class="card-body">
+                {% if utility_records %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Assignment ID</th>
+                                <th>Complaint ID</th>
+                                <th>Type</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                                <th>Assigned At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in utility_records %}
+                            <tr>
+                                <td>#{{ record.id }}</td>
+                                <td>{{ record.complaint.complaint_id }}</td>
+                                <td>{{ record.complaint.utility_type.name }}</td>
+                                <td>{{ record.team.name }}</td>
+                                <td>
+                                    {% if record.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+                                    {% if record.status == 'in_progress' %}<span class="badge bg-info">In Progress</span>{% endif %}
+                                    {% if record.status == 'resolved' %}<span class="badge bg-success">Resolved</span>{% endif %}
+                                </td>
+                                <td>{{ record.assigned_at|date:"d M Y, h:i A" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No utility assignment history found for this worker.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

@@ -1,4 +1,32 @@
-venv/
+# Python bytecode and caches
 __pycache__/
-*.pyc
-*.sqlite3
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Local environment variables
+.env
+.env.*
+!.env.example
+
+# Django generated files
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store

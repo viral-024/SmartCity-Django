@@ -3,93 +3,135 @@
 {% block title %}My Emergency Requests - SmartCity EMS{% endblock %}
 
 {% block dashboard_content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2><i class="fas fa-history me-2"></i>My Emergency Requests</h2>
-        <p class="text-muted">View and track your submitted emergency requests</p>
-    </div>
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+  <div>
+    <h2 class="mb-1"><i class="fas fa-ambulance me-2 text-danger"></i>My Emergency Requests</h2>
+    <p class="text-muted mb-0">Search, filter, and track the latest response status.</p>
+  </div>
+  <a href="{% url 'emergency:report_emergency' %}" class="btn btn-danger">
+    <i class="fas fa-plus me-1"></i>New Emergency Request
+  </a>
 </div>
 
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-list me-2"></i>Complaints History</span>
-                <a href="{% url 'emergency:report_emergency' %}" class="btn btn-warning btn-sm">
-                    <i class="fas fa-plus me-1"></i>New Complaint
-                </a>
-            </div>
-            <div class="card-body">
-                {% if requests %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Request ID</th>
-                                <th>Type</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Submitted</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for req in requests %}
-                            <tr>
-                                <td><strong>#{{ req.id }}</strong></td>
-                                <td>
-                                    <i class="fas fa-{{ req.emergency_type.icon }} me-1"></i>
-                                    {{ req.emergency_type.name }}
-                                </td>
-                                <td>
-                                    {% if req.priority == 'critical' %}
-                                    <span class="badge bg-danger">Critical</span>
-                                    {% elif req.priority == 'high' %}
-                                    <span class="badge bg-warning">High</span>
-                                    {% elif req.priority == 'medium' %}
-                                    <span class="badge bg-info">Medium</span>
-                                    {% else %}
-                                    <span class="badge bg-success">Low</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if req.status == 'pending' %}
-                                    <span class="badge bg-secondary">Pending</span>
-                                    {% elif req.status == 'assigned' %}
-                                    <span class="badge bg-primary">Assigned</span>
-                                    {% elif req.status == 'en_route' %}
-                                    <span class="badge bg-info">En Route</span>
-                                    {% elif req.status == 'on_scene' %}
-                                    <span class="badge bg-warning">On Scene</span>
-                                    {% elif req.status == 'resolved' %}
-                                    <span class="badge bg-success">Resolved</span>
-                                    {% else %}
-                                    <span class="badge bg-success">Complete</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ req.created_at|date:"M d, Y" }}<br><small>{{ req.created_at|time:"h:i A" }}</small></td>
-                                <td>
-                                    <a href="{% url 'emergency:detail' req.id %}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye me-1"></i>View
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                    <h4 class="text-muted">No Emergency Requests Found</h4>
-                    <p class="text-muted">You haven't submitted any emergency requests yet.</p>
-                    <a href="{% url 'emergency:report_emergency' %}" class="btn btn-danger">
-                        <i class="fas fa-exclamation-triangle me-1"></i>Report Emergency
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+<div class="row g-3 mb-4">
+  <div class="col-sm-4">
+    <div class="stat-card danger h-100">
+      <div class="stat-number">{{ open_count }}</div>
+      <div class="stat-label">Open</div>
     </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="stat-card success h-100">
+      <div class="stat-number">{{ resolved_count }}</div>
+      <div class="stat-label">Resolved</div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="stat-card info h-100">
+      <div class="stat-number">{{ cancelled_count }}</div>
+      <div class="stat-label">Cancelled</div>
+    </div>
+  </div>
 </div>
-{% endblock %}  
+
+<div class="card mb-4">
+  <div class="card-header">
+    <i class="fas fa-filter me-2"></i>Filter Requests
+  </div>
+  <div class="card-body">
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+          <option value="">All statuses</option>
+          {% for value, label in status_options %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Priority</label>
+        <select name="priority" class="form-select">
+          <option value="">All priorities</option>
+          {% for value, label in priority_options %}
+          <option value="{{ value }}" {% if selected_priority == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Search</label>
+        <input type="text" class="form-control" name="q" value="{{ search_query }}" placeholder="ID, type, area, or description" />
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i>Apply Filters</button>
+        <a href="{% url 'emergency:my_requests' %}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-list me-2"></i>Results</span>
+    <span class="badge bg-light text-dark">{{ total_results }} record(s)</span>
+  </div>
+  <div class="card-body">
+    {% if requests %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for req in requests %}
+          <tr>
+            <td><strong>#{{ req.id }}</strong></td>
+            <td>{{ req.emergency_type.name }}</td>
+            <td>
+              {% if req.priority == 'critical' %}<span class="badge bg-danger">Critical</span>{% endif %}
+              {% if req.priority == 'high' %}<span class="badge bg-warning text-dark">High</span>{% endif %}
+              {% if req.priority == 'medium' %}<span class="badge bg-info text-dark">Medium</span>{% endif %}
+              {% if req.priority == 'low' %}<span class="badge bg-success">Low</span>{% endif %}
+            </td>
+            <td>
+              {% if req.status == 'pending' %}<span class="badge bg-secondary">Pending</span>{% endif %}
+              {% if req.status == 'assigned' %}<span class="badge bg-primary">Assigned</span>{% endif %}
+              {% if req.status == 'en_route' %}<span class="badge bg-info">En Route</span>{% endif %}
+              {% if req.status == 'on_scene' %}<span class="badge bg-warning text-dark">On Scene</span>{% endif %}
+              {% if req.status == 'resolved' %}<span class="badge bg-success">Resolved</span>{% endif %}
+              {% if req.status == 'cancelled' %}<span class="badge bg-dark">Cancelled</span>{% endif %}
+            </td>
+            <td>{{ req.created_at|date:"d M Y, h:i A" }}</td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'emergency:detail' req.id %}" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-eye me-1"></i>View
+                </a>
+                {% if req.status == 'pending' %}
+                <form method="post" action="{% url 'emergency:cancel_request' req.id %}" onsubmit="return confirm('Cancel this emergency request?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-xmark me-1"></i>Cancel
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">No requests match the selected filters.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

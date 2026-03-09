@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -129,3 +130,54 @@ STATIC_URL = 'static/'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/accounts/profile/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+# MUST configure this for production!
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    # Add your domain when deployed: 'yourdomain.com', 'www.yourdomain.com'
+]
+
+# Static files configuration (works with WhiteNoise on Windows)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'templates/static'),
+]
+
+# Add WhiteNoise middleware (MUST be first)
+MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← MUST be FIRST
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+# Security settings for production
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SESSION_COOKIE_SECURE = True  # Set to False if NOT using HTTPS
+CSRF_COOKIE_SECURE = True     # Set to False if NOT using HTTPS
+X_FRAME_OPTIONS = 'DENY'
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv(*args, **kwargs):
+        return False
+
+load_dotenv(BASE_DIR / '.env')
+
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-for-dev-only')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')

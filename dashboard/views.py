@@ -1,56 +1,72 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
 from accounts.models import User
 from emergency.models import EmergencyTeam, TeamAssignment
 from utilities.models import UtilityTeam, UtilityTeamAssignment
+
 
 @login_required
 def dashboard_redirect(request):
     """Redirect to role-specific dashboard"""
     role = request.user.role
-    
+
     if role == 'citizen':
         return redirect('dashboard:citizen')
-    elif role == 'government_authority':
+    if role == 'government_authority':
         return redirect('gov_authority:dashboard')
-    elif role == 'utility_officer':
+    if role == 'utility_officer':
         return redirect('utilities:officer_dashboard')
-    elif role == 'emergency_operator':
+    if role == 'emergency_operator':
         return redirect('emergency:operator_dashboard')
-    elif role == 'team_admin':
+    if role == 'team_admin':
         return redirect('team_admin:manage_workers')
-    elif role == 'worker':
+    if role == 'worker':
         return redirect('dashboard:worker')
-    else:
-        return redirect('accounts:profile')
+    return redirect('accounts:profile')
 
 
 @login_required
 def citizen_dashboard(request):
-    """Citizen dashboard - show their requests"""
+    """Citizen dashboard with quick stats and recent activity"""
     if request.user.role != 'citizen':
         return redirect('dashboard:dashboard')
-    
-    # Get actual statistics from database
-    pending_emergencies = request.user.emergency_requests.filter(status='pending').count()
-    pending_complaints = request.user.complaints.filter(status='pending').count()
+
+    emergency_open_statuses = ['pending', 'assigned', 'en_route', 'on_scene']
+    complaint_open_statuses = ['pending', 'assigned', 'in_progress', 'escalated']
+
+    open_emergencies = request.user.emergency_requests.filter(status__in=emergency_open_statuses).count()
+    open_complaints = request.user.complaints.filter(status__in=complaint_open_statuses).count()
+
     resolved_requests = (
-        request.user.emergency_requests.filter(status='resolved').count() + 
-        request.user.complaints.filter(status='resolved').count()
+        request.user.emergency_requests.filter(status='resolved').count()
+        + request.user.complaints.filter(status='resolved').count()
     )
-    total_requests = (
-        request.user.emergency_requests.count() + 
-        request.user.complaints.count()
+    total_requests = request.user.emergency_requests.count() + request.user.complaints.count()
+
+    attention_required = (
+        request.user.emergency_requests.filter(
+            status__in=emergency_open_statuses,
+            priority__in=['critical', 'high'],
+        ).count()
+        + request.user.complaints.filter(
+            status__in=complaint_open_statuses,
+            priority='high',
+        ).count()
     )
-    
+
+    recent_emergencies = request.user.emergency_requests.select_related('emergency_type').order_by('-created_at')[:5]
+    recent_complaints = request.user.complaints.select_related('utility_type').order_by('-created_at')[:5]
+
     context = {
         'title': 'Citizen Dashboard',
         'user': request.user,
-        'pending_emergencies': pending_emergencies,
-        'pending_complaints': pending_complaints,
+        'open_emergencies': open_emergencies,
+        'open_complaints': open_complaints,
         'resolved_requests': resolved_requests,
         'total_requests': total_requests,
+        'attention_required': attention_required,
+        'recent_emergencies': recent_emergencies,
+        'recent_complaints': recent_complaints,
     }
     return render(request, 'dashboard/citizen.html', context)
 
@@ -60,26 +76,23 @@ def gov_dashboard(request):
     """Government authority dashboard - show city stats"""
     if request.user.role != 'government_authority':
         return redirect('dashboard:dashboard')
-    
-    # Get system statistics
+
     total_users = User.objects.count()
     citizens = User.objects.filter(role='citizen').count()
     staff = total_users - citizens
-    
-    # Team statistics
+
     total_emergency_teams = EmergencyTeam.objects.count()
     available_emergency_teams = EmergencyTeam.objects.filter(is_available=True).count()
     total_utility_teams = UtilityTeam.objects.count()
     available_utility_teams = UtilityTeam.objects.filter(is_available=True).count()
-    
-    # Assignment statistics
+
     active_emergency_assignments = TeamAssignment.objects.filter(
         status__in=['assigned', 'en_route', 'on_scene']
     ).count()
     active_utility_assignments = UtilityTeamAssignment.objects.filter(
         status__in=['assigned', 'in_progress']
     ).count()
-    
+
     context = {
         'title': 'Government Dashboard',
         'user': request.user,
@@ -101,31 +114,33 @@ def worker_dashboard(request):
     """Worker dashboard - show team assignments and tasks"""
     if request.user.role != 'worker':
         return redirect('dashboard:dashboard')
-    
-    # Get teams this worker belongs to
+
     emergency_teams = EmergencyTeam.objects.filter(workers=request.user)
     utility_teams = UtilityTeam.objects.filter(workers=request.user)
+    teams = sorted(list(emergency_teams) + list(utility_teams), key=lambda team: team.name.lower())
 
-    teams = list(emergency_teams) + list(utility_teams)
-    
-    # Get active emergency assignments
     active_emergency_assignments = TeamAssignment.objects.filter(
         team__in=EmergencyTeam.objects.filter(workers=request.user),
-        status__in=['assigned', 'en_route', 'on_scene']
-    ).select_related('emergency_request', 'team').order_by('-assigned_at')
-    
-    # Get active utility assignments
+        status__in=['assigned', 'en_route', 'on_scene'],
+    ).select_related('emergency_request', 'team', 'emergency_request__emergency_type').order_by('-assigned_at')
+
     active_utility_assignments = UtilityTeamAssignment.objects.filter(
         team__in=UtilityTeam.objects.filter(workers=request.user),
-        status__in=['assigned', 'in_progress']
-    ).select_related('complaint', 'team').order_by('-assigned_at')
-    
+        status__in=['assigned', 'in_progress'],
+    ).select_related('complaint', 'team', 'complaint__utility_type').order_by('-assigned_at')
+
+    emergency_task_count = active_emergency_assignments.count()
+    utility_task_count = active_utility_assignments.count()
+
     context = {
         'title': 'Worker Dashboard',
         'user': request.user,
         'teams': teams,
         'active_emergency_assignments': active_emergency_assignments,
         'active_utility_assignments': active_utility_assignments,
-        'total_assignments': active_emergency_assignments.count() + active_utility_assignments.count(),
+        'team_count': len(teams),
+        'emergency_task_count': emergency_task_count,
+        'utility_task_count': utility_task_count,
+        'total_assignments': emergency_task_count + utility_task_count,
     }
     return render(request, 'dashboard/worker.html', context)
