@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-g8lc86wv15nd0961te#9c#j08c19+v&f=10aso0$@)rthow(j2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['smartcity-mrbm.onrender.com']
 
 
 # Application definition
